@@ -186,11 +186,12 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.staticfiles',
 
+    'taiga.app.TaigaMainConfig',
+    'taiga.base',
     'taiga.base.users',
     'taiga.base.domains',
     'taiga.base.notifications',
     'taiga.base.searches',
-    'taiga.base',
     'taiga.projects',
     'taiga.projects.mixins.blocked',
     'taiga.projects.milestones',
