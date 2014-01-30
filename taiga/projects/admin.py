@@ -16,10 +16,13 @@ class AttachmentAdmin(reversion.VersionAdmin):
     list_filter = ["project", "content_type"]
 
 
-class AttachmentInline(generic.GenericTabularInline):
-     model = models.Attachment
-     fields = ("attached_file", "owner")
-     extra = 0
+# class AttachmentInline(generic.GenericTabularInline):
+#     model = models.Attachment
+#     fields = ("attached_file", "owner")
+#     extra = 0
+#
+#     ct_fk_field = "object_id"
+#     ct_field = "content_type"
 
 
 class MembershipAdmin(admin.ModelAdmin):

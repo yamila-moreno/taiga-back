@@ -202,7 +202,6 @@ INSTALLED_APPS = [
     #'taiga.projects.documents',
     'taiga.projects.wiki',
 
-    'south',
     'reversion',
     'rest_framework',
     'djmail',

@@ -3,7 +3,7 @@
 from django.contrib import admin
 import reversion
 
-from taiga.projects.admin import AttachmentInline
+# from taiga.projects.admin import AttachmentInline
 
 from . import models
 
@@ -29,7 +29,7 @@ class UserStoryAdmin(reversion.VersionAdmin):
     list_display = ["project", "milestone",  "ref", "subject",]
     list_display_links = ["ref", "subject",]
     list_filter = ["project"]
-    inlines = [RolePointsInline, AttachmentInline]
+    inlines = [RolePointsInline]
 
     def get_object(self, *args, **kwargs):
         self.obj = super().get_object(*args, **kwargs)
