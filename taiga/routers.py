@@ -4,7 +4,7 @@ from taiga.base import routers
 from taiga.base.auth.api import AuthViewSet
 from taiga.base.users.api import UsersViewSet, PermissionsViewSet
 from taiga.base.searches.api import SearchViewSet
-from taiga.base.resolver.api import ResolverViewSet
+from taiga.projects.references.api import ResolverViewSet
 from taiga.projects.api import (ProjectViewSet, MembershipViewSet, InvitationViewSet,
                                     UserStoryStatusViewSet, PointsViewSet, TaskStatusViewSet,
                                     IssueStatusViewSet, IssueTypeViewSet, PriorityViewSet,
