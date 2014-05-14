@@ -59,13 +59,13 @@ def attach_sequence(sender, instance, **kwargs):
     refval, _ = make_reference(instance, instance.project)
 
     # Additionally, attach sequence number to instance as ref
-    instance.ref = refval
+    sender.objects.filter(pk=instance.pk).update(ref=refval)
 
 
 models.signals.post_save.connect(create_sequence, sender=Project, dispatch_uid="refproj")
-models.signals.pre_save.connect(attach_sequence, sender=UserStory, dispatch_uid="refus")
-models.signals.pre_save.connect(attach_sequence, sender=Issue, dispatch_uid="refissue")
-models.signals.pre_save.connect(attach_sequence, sender=Task, dispatch_uid="reftask")
+models.signals.post_save.connect(attach_sequence, sender=UserStory, dispatch_uid="refus")
+models.signals.post_save.connect(attach_sequence, sender=Issue, dispatch_uid="refissue")
+models.signals.post_save.connect(attach_sequence, sender=Task, dispatch_uid="reftask")
 
 
 

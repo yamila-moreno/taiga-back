@@ -72,9 +72,9 @@ class Command(BaseCommand):
         task_model = get_model("tasks", "Task")
         project_model = get_model("projects", "Project")
 
-        models.signals.pre_save.disconnect(dispatch_uid="refus", sender=us_model)
-        models.signals.pre_save.disconnect(dispatch_uid="refissue", sender=issue_model)
-        models.signals.pre_save.disconnect(dispatch_uid="reftask", sender=task_model)
+        models.signals.post_save.disconnect(dispatch_uid="refus", sender=us_model)
+        models.signals.post_save.disconnect(dispatch_uid="refissue", sender=issue_model)
+        models.signals.post_save.disconnect(dispatch_uid="reftask", sender=task_model)
         models.signals.post_save.disconnect(dispatch_uid="refproj", sender=project_model)
 
     def process_userstories_comments(self):
