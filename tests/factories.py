@@ -13,8 +13,12 @@ import taiga.userstorage.models
 
 
 class DomainFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = taiga.domains.models.Domain
-    FACTORY_DJANGO_GET_OR_CREATE = ("domain",)
+    # FACTORY_FOR = taiga.domains.models.Domain
+    # FACTORY_DJANGO_GET_OR_CREATE = ("domain",)
+
+    class Meta:
+        model = "taiga.domains.models.Domain"
+        django_get_or_create = ("domain",)
 
     name = "Default domain"
     domain = "default"

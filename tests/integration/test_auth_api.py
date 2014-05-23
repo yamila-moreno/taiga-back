@@ -10,7 +10,7 @@ pytestmark = pytest.mark.django_db
 
 def setup_module(module):
     module.patcher = mock.patch("taiga.domains.base.get_default_domain",
-                                mock.Mock(return_value=factories.DomainFactory()))
+                                mock.Mock(return_value=factories.DomainFactory.create()))
     module.patcher.start()
 
 def teardown_module(module):
