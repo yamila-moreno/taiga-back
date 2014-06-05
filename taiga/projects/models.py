@@ -29,11 +29,13 @@ from django.utils import timezone
 
 from picklefield.fields import PickledObjectField
 from django_pgjson.fields import JsonField
+from djorm_pgarray.fields import TextArrayField
 
 from taiga.base.tags import TaggedMixin
 from taiga.users.models import Role
 from taiga.base.utils.slug import slugify_uniquely
 from taiga.base.utils.dicts import dict_sum
+from taiga.permissions.permissions import *
 
 from . import choices
 
@@ -150,6 +152,12 @@ class Project(ProjectDefaults, TaggedMixin, models.Model):
                                           related_name="projects", null=True,
                                           blank=True, default=None,
                                           verbose_name=_("creation template"))
+    anon_permissions = TextArrayField(blank=True, null=True,
+                                      choices=ANON_PERMISSIONS,
+                                      verbose_name=_("anonymous permissions"))
+    public_permissions = TextArrayField(blank=True, null=True,
+                                        choices=USER_PERMISSIONS,
+                                        verbose_name=_("user permissions"))
 
     class Meta:
         verbose_name = "project"

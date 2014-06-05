@@ -21,6 +21,8 @@ from django.contrib.auth.models import UserManager, AbstractBaseUser
 from django.core import validators
 from django.utils import timezone
 
+from djorm_pgarray.fields import TextArrayField
+
 from taiga.base.utils.slug import slugify_uniquely
 
 import random
@@ -124,8 +126,9 @@ class Role(models.Model):
                             verbose_name=_("name"))
     slug = models.SlugField(max_length=250, null=False, blank=True,
                             verbose_name=_("slug"))
-    permissions = models.ManyToManyField("auth.Permission", related_name="roles",
-                                         verbose_name=_("permissions"))
+    permissions = TextArrayField(blank=True, null=True,
+                                 choices=MEMBERS_PERMISSIONS,
+                                 verbose_name=_("permissions"))
     order = models.IntegerField(default=10, null=False, blank=False,
                                 verbose_name=_("order"))
     project = models.ForeignKey("projects.Project", null=False, blank=False,
