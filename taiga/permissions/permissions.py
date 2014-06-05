@@ -1,34 +1,34 @@
 ANON_PERMISSIONS = [
-    'view_project',
-    'view_milestones',
-    'view_uss',
-    'view_tasks',
-    'view_issues',
-    'view_wiki_pages'
+    ('view_project', 'View project'),
+    ('view_milestones', 'View milestones'),
+    ('view_uss', 'View user stories'),
+    ('view_tasks', 'View tasks'),
+    ('view_issues', 'View issues'),
+    ('view_wiki_pages' 'View wiki pages'),
 ]
 
 USER_PERMISSIONS = [
-    'ask_to_be_member',
-    'create_project',
-    'follow_public_project',
-    'star_public_project',
-    'add_us_to_project',
-    'add_comments_to_us',
-    'add_comments_to_task',
-    'add_issue',
-    'add_comments_issue',
-    'add_wiki_page',
-    'modify_wiki_page',
+    ('request_membership', 'Request membership'),
+    ('create_project', 'Create project'),
+    ('follow_public_project', 'Follow project'),
+    ('star_public_project', 'Stat project'),
+    ('add_us_to_project', 'Add user story to project'),
+    ('add_comments_to_us', 'Add comments to user stories'),
+    ('add_comments_to_task', 'Add comments to tasks'),
+    ('add_issue', 'Add issues'),
+    ('add_comments_issue', 'Add comments to issues'),
+    ('add_wiki_page', 'Add wiki page'),
+    ('modify_wiki_page', 'Modify wiki page'),
 ]
 
 MEMBERS_PERMISSIONS = [
 ]
 
 OWNERS_PERMISSIONS = [
-    'modify_project',
-    'add_member',
-    'remove_member',
-    'modify_project_values',
-    'delete_project',
-    'modify_roles',
+    ('modify_project', 'Modify project'),
+    ('add_member', 'Add member'),
+    ('remove_member', 'Remove member'),
+    ('delete_project', 'Delete project'),
+    ('admin_project_values', 'Admin project values'),
+    ('admin_roles', 'Admin roles'),
 ]
