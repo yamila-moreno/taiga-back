@@ -4,7 +4,7 @@ ANON_PERMISSIONS = [
     ('view_uss', 'View user stories'),
     ('view_tasks', 'View tasks'),
     ('view_issues', 'View issues'),
-    ('view_wiki_pages' 'View wiki pages'),
+    ('view_wiki_pages', 'View wiki pages'),
 ]
 
 USER_PERMISSIONS = [
@@ -21,8 +21,7 @@ USER_PERMISSIONS = [
     ('modify_wiki_page', 'Modify wiki page'),
 ]
 
-MEMBERS_PERMISSIONS = [
-]
+MEMBERS_PERMISSIONS = []
 
 OWNERS_PERMISSIONS = [
     ('modify_project', 'Modify project'),
