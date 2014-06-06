@@ -1,13 +1,13 @@
 from taiga.projects.models import Membership, Project
+from .permissions import OWNERS_PERMISSIONS
 
 
-def _get_user_project_role(user, project):
+def _get_user_project_membership(user, project):
     if user.is_anonymous():
         return None
 
     try:
-        membership = Membership.objects.get(user=user, project=project)
-        return membership.role
+        return Membership.objects.get(user=user, project=project)
     except Membership.DoesNotExist:
         return None
 
@@ -31,12 +31,16 @@ def role_has_perm(role, perm):
 
 
 def get_user_project_permissions(user, project):
-    role = _get_user_project_role(user, project)
-    if role:
-        return role.permissions
+    membership = _get_user_project_membership(user, project)
+    if membership:
+        if membership.is_owner:
+            owner_permissions = map(lambda perm: perm[0], OWNERS_PERMISSIONS)
+            return project.anon_permissions + project.public_permissions + membership.role.permissions + owner_permissions
+        else:
+            return project.anon_permissions + project.public_permissions + membership.role.permissions
     elif project.is_private:
         return []
-    elif user.is_authenticated:
+    elif user.is_authenticated():
         return project.anon_permissions + project.public_permissions
     else:
         return project.anon_permissions
