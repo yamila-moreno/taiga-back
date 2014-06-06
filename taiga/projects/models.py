@@ -154,10 +154,14 @@ class Project(ProjectDefaults, TaggedMixin, models.Model):
                                           verbose_name=_("creation template"))
     anon_permissions = TextArrayField(blank=True, null=True,
                                      choices=ANON_PERMISSIONS,
+                                     default=[],
                                      verbose_name=_("anonymous permissions"))
     public_permissions = TextArrayField(blank=True, null=True,
                                         choices=USER_PERMISSIONS,
+                                        default=[],
                                         verbose_name=_("user permissions"))
+    is_private = models.BooleanField(default=False, null=False, blank=True,
+                                    verbose_name=_("is private"))
 
     class Meta:
         verbose_name = "project"
