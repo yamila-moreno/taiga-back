@@ -17,7 +17,7 @@ def user_has_perm(user, perm, obj=None):
 
     if isinstance(obj, Project):
         project = obj
-    elif obj and obj.project:
+    elif obj and hasattr(obj, 'project'):
         project = obj.project
 
     if not project:
@@ -32,15 +32,18 @@ def role_has_perm(role, perm):
 
 def get_user_project_permissions(user, project):
     membership = _get_user_project_membership(user, project)
-    if membership:
+    if project.owner == user:
+        owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))
+        return set(project.anon_permissions + project.public_permissions + membership.role.permissions + owner_permissions)
+    elif membership:
         if membership.is_owner:
-            owner_permissions = map(lambda perm: perm[0], OWNERS_PERMISSIONS)
-            return project.anon_permissions + project.public_permissions + membership.role.permissions + owner_permissions
+            owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))
+            return set(project.anon_permissions + project.public_permissions + membership.role.permissions + owner_permissions)
         else:
-            return project.anon_permissions + project.public_permissions + membership.role.permissions
+            return set(project.anon_permissions + project.public_permissions + membership.role.permissions)
     elif project.is_private:
-        return []
+        return set()
     elif user.is_authenticated():
-        return project.anon_permissions + project.public_permissions
+        return set(project.anon_permissions + project.public_permissions)
     else:
-        return project.anon_permissions
+        return set(project.anon_permissions)
