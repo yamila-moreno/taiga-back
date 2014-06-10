@@ -16,7 +16,7 @@
 
 import abc
 
-from taiga.base.utils.sequence as sq
+from taiga.base.utils import sequence as sq
 
 
 ######################################################################
