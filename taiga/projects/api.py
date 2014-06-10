@@ -30,9 +30,12 @@ from djmail.template_mail import MagicMailBuilder
 
 from taiga.base import filters
 from taiga.base import exceptions as exc
-from taiga.base.decorators import list_route, detail_route
+from taiga.base.decorators import list_route
+from taiga.base.decorators import detail_route
 from taiga.base.permissions import has_project_perm
-from taiga.base.api import ModelCrudViewSet, ModelListViewSet, RetrieveModelMixin
+from taiga.base.api import ModelCrudViewSet
+from taiga.base.api import ModelListViewSet
+from taiga.base.api.mixins import RetrieveModelMixin
 from taiga.base.utils.slug import slugify_uniquely
 from taiga.users.models import Role
 
@@ -40,6 +43,7 @@ from . import serializers
 from . import models
 from . import permissions
 from . import services
+
 from .votes.utils import attach_votescount_to_queryset
 from .votes import services as votes_service
 from .votes import serializers as votes_serializers

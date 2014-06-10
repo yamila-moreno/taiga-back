@@ -29,9 +29,11 @@ from rest_framework import status, viewsets
 
 from djmail.template_mail import MagicMailBuilder
 
-from taiga.base.decorators import list_route, action
+from taiga.base.decorators import list_route
+from taiga.base.decorators import action
 from taiga.base import exceptions as exc
-from taiga.base.api import ModelCrudViewSet, RetrieveModelMixin, ModelListViewSet
+from taiga.base.api import ModelCrudViewSet
+from taiga.base.api import ModelListViewSet
 
 from .models import User, Role
 from .serializers import UserSerializer, RecoverySerializer
