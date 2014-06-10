@@ -103,12 +103,17 @@ class ViewSetMixin(object):
         self.action = self.action_map.get(request.method.lower())
         return request
 
+    def check_permissions(self, action:str=None, obj:object=None):
+        if action is None:
+            action = self.action
+        return super().check_permissions(action=action, obj=obj)
 
-# class ViewSet(ViewSetMixin, views.APIView):
-#     """
-#     The base ViewSet class does not provide any actions by default.
-#     """
-#     pass
+
+class ViewSet(ViewSetMixin, views.APIView):
+    """
+    The base ViewSet class does not provide any actions by default.
+    """
+    pass
 
 
 class GenericViewSet(ViewSetMixin, generics.GenericAPIView):
@@ -130,11 +135,11 @@ class ReadOnlyModelViewSet(mixins.RetrieveModelMixin,
 
 
 class ModelViewSet(mixins.CreateModelMixin,
-                    mixins.RetrieveModelMixin,
-                    mixins.UpdateModelMixin,
-                    mixins.DestroyModelMixin,
-                    mixins.ListModelMixin,
-                    GenericViewSet):
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
     """
     A viewset that provides default `create()`, `retrieve()`, `update()`,
     `partial_update()`, `destroy()` and `list()` actions.

@@ -29,6 +29,8 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.utils import formatting
 
+from taiga.base.utils.iterators import as_tuple
+
 
 def get_view_name(view_cls, suffix=None):
     """
@@ -234,11 +236,15 @@ class APIView(View):
         """
         return [auth() for auth in self.authentication_classes]
 
+    @as_tuple
     def get_permissions(self):
         """
         Instantiates and returns the list of permissions that this view requires.
         """
-        return [permission() for permission in self.permission_classes]
+        for permcls in self.permission_classes:
+            instance = permcls(request=self.request,
+                               view=self)
+            yield instance
 
     def get_throttles(self):
         """
@@ -280,23 +286,13 @@ class APIView(View):
         """
         request.user
 
-    # def check_permissions(self, request):
-    #     """
-    #     Check if the request should be permitted.
-    #     Raises an appropriate exception if the request is not permitted.
-    #     """
-    #     for permission in self.get_permissions():
-    #         if not permission.has_permission(request, self):
-    #             self.permission_denied(request)
-
-    # def check_object_permissions(self, request, obj):
-    #     """
-    #     Check if the request should be permitted for a given object.
-    #     Raises an appropriate exception if the request is not permitted.
-    #     """
-    #     for permission in self.get_permissions():
-    #         if not permission.has_object_permission(request, self, obj):
-    #             self.permission_denied(request)
+    def check_permissions(self, action, obj=None):
+        try:
+            for permission in self.get_permissions():
+                if not permission.check_permissions(action=action, obj=obj):
+                    self.permission_denied(request)
+        except Exception as e:
+            print(e)
 
     def check_throttles(self, request):
         """
@@ -329,7 +325,6 @@ class APIView(View):
 
         # Ensure that the incoming request is permitted
         self.perform_authentication(request)
-        # self.check_permissions(request)
         self.check_throttles(request)
 
         # Perform content negotiation and store the accepted info on the request
@@ -396,7 +391,7 @@ class APIView(View):
         self.kwargs = kwargs
         request = self.initialize_request(request, *args, **kwargs)
         self.request = request
-        self.headers = self.default_response_headers  # deprecate?
+        self.headers = self.default_response_headers
 
         try:
             self.initial(request, *args, **kwargs)

@@ -25,9 +25,12 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404 as _get_object_or_404
 from django.utils.translation import ugettext as _
 
-from rest_framework import views, mixins, exceptions
+from rest_framework import exceptions
 from rest_framework.request import clone_request
 from rest_framework.settings import api_settings
+
+from . import views
+from . import mixins
 
 
 def strict_positive_int(integer_string, cutoff=None):

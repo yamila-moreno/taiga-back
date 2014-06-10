@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.response import Response
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import status, viewsets
+from rest_framework import status
 
 from djmail.template_mail import MagicMailBuilder
 
@@ -57,7 +57,7 @@ class MembersFilterBackend(BaseFilterBackend):
 
 
 class UsersViewSet(ModelCrudViewSet):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
     queryset = User.objects.all()
     filter_backends = (MembersFilterBackend,)
