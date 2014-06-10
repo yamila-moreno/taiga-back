@@ -202,14 +202,10 @@ class GenericAPIView(views.APIView):
         """
         filter_backends = self.filter_backends or []
         if not filter_backends and self.filter_backend:
-            warnings.warn(
-                'The `filter_backend` attribute and `FILTER_BACKEND` setting '
-                'are due to be deprecated in favor of a `filter_backends` '
-                'attribute and `DEFAULT_FILTER_BACKENDS` setting, that take '
-                'a *list* of filter backend classes.',
-                PendingDeprecationWarning, stacklevel=2
-            )
-            filter_backends = [self.filter_backend]
+            raise RuntimeException('The `filter_backend` attribute and `FILTER_BACKEND` setting '
+                                   'are due to be deprecated in favor of a `filter_backends` '
+                                   'attribute and `DEFAULT_FILTER_BACKENDS` setting, that take '
+                                   'a *list* of filter backend classes.')
         return filter_backends
 
 
@@ -227,10 +223,8 @@ class GenericAPIView(views.APIView):
         Otherwise defaults to using `self.paginate_by`.
         """
         if queryset is not None:
-            warnings.warn('The `queryset` parameter to `get_paginate_by()` '
-                          'is due to be deprecated.',
-                          PendingDeprecationWarning, stacklevel=2)
-
+            raise RuntimeException('The `queryset` parameter to `get_paginate_by()` '
+                                   'is due to be deprecated.')
         if self.paginate_by_param:
             try:
                 return strict_positive_int(
@@ -243,15 +237,9 @@ class GenericAPIView(views.APIView):
         return self.paginate_by
 
     def get_serializer_class(self):
-        """
-        Return the class to use for the serializer.
-        Defaults to using `self.serializer_class`.
+        if self.action == "list" and hasattr(self, "list_serializer_class"):
+            return self.list_serializer_class
 
-        You may want to override this if you need to provide different
-        serializations depending on the incoming request.
-
-        (Eg. admins get full serialization, others get basic serialization)
-        """
         serializer_class = self.serializer_class
         if serializer_class is not None:
             return serializer_class
@@ -299,7 +287,9 @@ class GenericAPIView(views.APIView):
         if queryset is None:
             queryset = self.filter_queryset(self.get_queryset())
         else:
-            pass  # Deprecation warning
+            # NOTE: explicit exception for avoid and fix
+            # usage of deprecated way of get_object
+            raise RuntimeException("DEPRECATED")
 
         # Perform the lookup filtering.
         # Note that `pk` and `slug` are deprecated styles of lookup filtering.
@@ -311,19 +301,11 @@ class GenericAPIView(views.APIView):
         if lookup is not None:
             filter_kwargs = {self.lookup_field: lookup}
         elif pk is not None and self.lookup_field == 'pk':
-            warnings.warn(
-                'The `pk_url_kwarg` attribute is due to be deprecated. '
-                'Use the `lookup_field` attribute instead',
-                PendingDeprecationWarning
-            )
-            filter_kwargs = {'pk': pk}
+            raise RuntimeException('The `pk_url_kwarg` attribute is due to be deprecated. '
+                                   'Use the `lookup_field` attribute instead')
         elif slug is not None and self.lookup_field == 'pk':
-            warnings.warn(
-                'The `slug_url_kwarg` attribute is due to be deprecated. '
-                'Use the `lookup_field` attribute instead',
-                PendingDeprecationWarning
-            )
-            filter_kwargs = {self.slug_field: slug}
+            raise RuntimeException('The `slug_url_kwarg` attribute is due to be deprecated. '
+                                   'Use the `lookup_field` attribute instead')
         else:
             raise ImproperlyConfigured(
                 'Expected view %s to be called with a URL keyword argument '
@@ -333,10 +315,6 @@ class GenericAPIView(views.APIView):
             )
 
         obj = get_object_or_404(queryset, **filter_kwargs)
-
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-
         return obj
 
     ########################
@@ -387,52 +365,11 @@ class GenericAPIView(views.APIView):
         """
         pass
 
-    def metadata(self, request):
-        """
-        Return a dictionary of metadata about the view.
-        Used to return responses for OPTIONS requests.
-
-        We override the default behavior, and add some extra information
-        about the required request body for POST and PUT operations.
-        """
-        ret = super(GenericAPIView, self).metadata(request)
-
-        actions = {}
-        for method in ('PUT', 'POST'):
-            if method not in self.allowed_methods:
-                continue
-
-            cloned_request = clone_request(request, method)
-            try:
-                # Test global permissions
-                self.check_permissions(cloned_request)
-                # Test object permissions
-                if method == 'PUT':
-                    try:
-                        self.get_object()
-                    except Http404:
-                        # Http404 should be acceptable and the serializer
-                        # metadata should be populated. Except this so the
-                        # outer "else" clause of the try-except-else block
-                        # will be executed.
-                        pass
-            except (exceptions.APIException, PermissionDenied):
-                pass
-            else:
-                # If user has appropriate permissions for the view, include
-                # appropriate metadata about the fields that should be supplied.
-                serializer = self.get_serializer()
-                actions[method] = serializer.metadata()
-
-        if actions:
-            ret['actions'] = actions
-
-        return ret
-
 
 ##########################################################
 ### Concrete view classes that provide method handlers ###
 ### by composing the mixin classes with the base view. ###
+### NOTE: not used by taiga.                           ###
 ##########################################################
 
 class CreateAPIView(mixins.CreateModelMixin,

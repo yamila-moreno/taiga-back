@@ -20,13 +20,10 @@
 from functools import update_wrapper
 from django.utils.decorators import classonlymethod
 
-from rest_framework import views
-
+from . import views
 from . import mixins
 from . import generics
-
-# TODO: move to "."
-from .. import pagination
+from . import pagination
 
 
 class ViewSetMixin(object):
@@ -145,15 +142,13 @@ class ModelViewSet(mixins.CreateModelMixin,
     pass
 
 
-class ModelCrudViewSet(mixins.DetailAndListSerializersMixin,
-                       pagination.HeadersPaginationMixin,
+class ModelCrudViewSet(pagination.HeadersPaginationMixin,
                        pagination.ConditionalPaginationMixin,
                        ModelViewSet):
     pass
 
 
-class ModelListViewSet(mixins.DetailAndListSerializersMixin,
-                       pagination.HeadersPaginationMixin,
+class ModelListViewSet(pagination.HeadersPaginationMixin,
                        pagination.ConditionalPaginationMixin,
                        mixins.RetrieveModelMixin,
                        mixins.ListModelMixin,

@@ -123,6 +123,7 @@ class RetrieveModelMixin(object):
     """
     def retrieve(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         serializer = self.get_serializer(self.object)
         return Response(serializer.data)
 
@@ -219,16 +220,3 @@ class DestroyModelMixin(object):
         obj.delete()
         self.post_delete(obj)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class DetailAndListSerializersMixin(object):
-    """
-    Use a diferent serializer class to the list action.
-    TODO: refactor
-    """
-    list_serializer_class = None
-
-    def get_serializer_class(self):
-        if self.action == "list" and self.list_serializer_class:
-            return self.list_serializer_class
-        return super().get_serializer_class()
