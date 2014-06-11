@@ -287,12 +287,9 @@ class APIView(View):
         request.user
 
     def check_permissions(self, request, action, obj=None):
-        try:
-            for permission in self.get_permissions():
-                if not permission.check_permissions(action=action, obj=obj):
-                    self.permission_denied(request)
-        except Exception as e:
-            print(e)
+        for permission in self.get_permissions():
+            if not permission.check_permissions(action=action, obj=obj):
+                self.permission_denied(request)
 
     def check_throttles(self, request):
         """
