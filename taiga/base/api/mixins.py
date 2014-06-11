@@ -68,6 +68,8 @@ class CreateModelMixin(object):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
 
         if serializer.is_valid():
+            self.check_permissions(request, 'create', serializer.object)
+
             self.pre_save(serializer.object)
             self.pre_conditions_on_save(serializer.object)
             self.object = serializer.save(force_insert=True)
@@ -92,6 +94,8 @@ class ListModelMixin(object):
     empty_error = "Empty list and '%(class_name)s.allow_empty' is False."
 
     def list(self, request, *args, **kwargs):
+        self.check_permissions(request, 'list')
+
         self.object_list = self.filter_queryset(self.get_queryset())
 
         # Default is to allow empty querysets.  This can be altered by setting
@@ -122,7 +126,12 @@ class RetrieveModelMixin(object):
     Retrieve a model instance.
     """
     def retrieve(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        self.object = self.get_object_or_none()
+
+        self.check_permissions(request, 'retrieve', self.object)
+
+        if self.object is None:
+            raise Http404
 
         serializer = self.get_serializer(self.object)
         return Response(serializer.data)
@@ -137,6 +146,8 @@ class UpdateModelMixin(object):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         self.object = self.get_object_or_none()
+
+        self.check_permissions(request, 'update', self.object)
 
         serializer = self.get_serializer(self.object, data=request.DATA,
                                          files=request.FILES, partial=partial)
@@ -170,16 +181,7 @@ class UpdateModelMixin(object):
         try:
             return self.get_object()
         except Http404:
-            if self.request.method == 'PUT':
-                # For PUT-as-create operation, we need to ensure that we have
-                # relevant permissions, as if this was a POST request.  This
-                # will either raise a PermissionDenied exception, or simply
-                # return None.
-                self.check_permissions(clone_request(self.request, 'POST'))
-            else:
-                # PATCH requests where the object does not exist should still
-                # return a 404 response.
-                raise
+            return None
 
     def pre_save(self, obj):
         """
@@ -214,7 +216,12 @@ class DestroyModelMixin(object):
     """
     @tx.atomic
     def destroy(self, request, *args, **kwargs):
-        obj = self.get_object()
+        obj = self.get_object_or_none()
+        self.check_permissions(request, 'destroy', obj)
+
+        if obj is None:
+            raise Http404
+
         self.pre_delete(obj)
         self.pre_conditions_on_delete(obj)
         obj.delete()

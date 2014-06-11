@@ -1,11 +1,8 @@
-from taiga.base.api.permissions import PermissionComponent, AllowAny as TruePermissionComponent
+from taiga.base.api.permissions import (PermissionComponent,
+                                        AllowAny as TruePermissionComponent,
+                                        DenyAll as FalsePermissionComponent)
 
 import pytest
-
-
-class FalsePermissionComponent(PermissionComponent):
-    def check_permissions(self, request, view, obj=None):
-        return False
 
 
 def test_permission_component_composition():

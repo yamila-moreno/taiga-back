@@ -29,11 +29,12 @@ class ResourcePermission(object):
     """
 
     enought_perms = None
+    global_perms = None
     retrieve_perms = None
     create_perms = None
-    detail_perms = None
     update_perms = None
-    delete_perms = None
+    destroy_perms = None
+    list_perms = None
 
     def __init__(self, request, view):
         self.request = request
@@ -56,8 +57,11 @@ class ResourcePermission(object):
         else:
             raise RuntimeError("Invalid permission definition.")
 
+        if self.global_perms:
+            permset = (self.global_perms & permset)
+
         if self.enought_perms:
-            perms = (self.enought_perms | perms)
+            permset = (self.enought_perms | permset)
 
         return permset.check_permissions(request=self.request,
                                          view=self.view,
@@ -143,6 +147,11 @@ class And(PermissionOperator):
 class AllowAny(PermissionComponent):
     def check_permissions(self, request, view, obj=None):
         return True
+
+
+class DenyAll(PermissionComponent):
+    def check_permissions(self, request, view, obj=None):
+        return False
 
 
 class IsAuthenticated(PermissionComponent):

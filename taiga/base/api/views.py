@@ -286,7 +286,7 @@ class APIView(View):
         """
         request.user
 
-    def check_permissions(self, action, obj=None):
+    def check_permissions(self, request, action, obj=None):
         try:
             for permission in self.get_permissions():
                 if not permission.check_permissions(action=action, obj=obj):
