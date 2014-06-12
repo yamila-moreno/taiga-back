@@ -1,5 +1,5 @@
 from taiga.projects.models import Membership, Project
-from .permissions import OWNERS_PERMISSIONS
+from .permissions import OWNERS_PERMISSIONS, MEMBERS_PERMISSIONS
 
 
 def _get_user_project_membership(user, project):
@@ -45,7 +45,12 @@ def get_user_project_permissions(user, project):
     membership = _get_user_project_membership(user, project)
     if project.owner == user:
         owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))
-        return set(project.anon_permissions + project.public_permissions + membership.role.permissions + owner_permissions)
+        if membership:
+            members_permissions = membership.role.permissions
+        else:
+            members_permissions = list(map(lambda perm: perm[0], MEMBERS_PERMISSIONS))
+
+        return set(project.anon_permissions + project.public_permissions + members_permissions + owner_permissions)
     elif membership:
         if membership.is_owner:
             owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))

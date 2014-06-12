@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
 from rest_framework.permissions import IsAuthenticated
@@ -36,6 +37,7 @@ from taiga.projects.history import HistoryResourceMixin
 from taiga.projects.votes.utils import attach_votescount_to_queryset
 from taiga.projects.votes import services as votes_service
 from taiga.projects.votes import serializers as votes_serializers
+from taiga.projects.models import Project
 from . import models
 from . import permissions
 from . import serializers
@@ -119,10 +121,11 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
                        "assigned_to",
                        "subject")
 
-    def list(self):
-        project = self.request.QUERY_PARAMS.get("project", None)
+    def list(self, request, *args, **kwargs):
+        project_id = self.request.QUERY_PARAMS.get("project", None)
+        project = get_object_or_404(Project, pk=project_id)
         self.check_permissions(request, 'list', project)
-        return super().list()
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = models.Issue.objects.all()
@@ -174,6 +177,12 @@ class VotersViewSet(ModelCrudViewSet):
     serializer_class = votes_serializers.VoterSerializer
     list_serializer_class = votes_serializers.VoterSerializer
     permission_classes = (permissions.IssueVotersPermission, )
+
+    def list(self, request, *args, **kwargs):
+        issue_id = kwargs.get("issue_id", None)
+        issue = get_object_or_404(models.Issue, pk=issue_id)
+        self.check_permissions(request, 'list', issue)
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         issue = models.Issue.objects.get(pk=self.kwargs.get("issue_id"))

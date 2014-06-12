@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from taiga.base.api.permissions import ResourcePermission, HasProjectPerm, IsProjectOwner, HasMandatoryParam
+from taiga.base.api.permissions import ResourcePermission, HasProjectPerm, IsProjectOwner, HasMandatoryParam, PermissionComponent
 
 
 class IssuePermission(ResourcePermission):
@@ -27,6 +27,15 @@ class IssuePermission(ResourcePermission):
     destroy_perms = HasProjectPerm('delete_issue')
     list_perms = HasMandatoryParam('project') & HasProjectPerm('view_issues')
 
+
+class HasIssueIdUrlParam(PermissionComponent):
+    def check_permissions(self, request, view, obj=None):
+        param = view.kwargs.get('issue_id', None)
+        if param:
+            return True
+        return False
+
+
 class IssueVotersPermission(ResourcePermission):
     enought_perms = IsProjectOwner()
     global_perms = None
@@ -34,4 +43,4 @@ class IssueVotersPermission(ResourcePermission):
     create_perms = HasProjectPerm('add_issue')
     update_perms = HasProjectPerm('update_issue')
     destroy_perms = HasProjectPerm('delete_issue')
-    list_perms = HasProjectPerm('view_issues')
+    list_perms = HasIssueIdUrlParam() & HasProjectPerm('view_issues')

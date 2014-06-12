@@ -16,15 +16,16 @@
 
 from taiga.base.permissions import BasePermission
 
+from taiga.base.api.permissions import (ResourcePermission, HasProjectPerm,
+                                        IsAuthenticated, IsProjectOwner, AllowAny)
 
-class ProjectPermission(BasePermission):
-    get_permission = "view_project"
-    post_permission = None
-    put_permission = "change_project"
-    patch_permission = "change_project"
-    delete_permission = None
-    safe_methods = ["HEAD", "OPTIONS"]
-    path_to_project =  []
+
+class ProjectPermission(ResourcePermission):
+    retrieve_perms = HasProjectPerm('view_project')
+    create_perms = IsAuthenticated()
+    update_perms = IsProjectOwner()
+    destroy_perms = IsProjectOwner()
+    list_perms = AllowAny()
 
 
 class ProjectAdminPermission(BasePermission):

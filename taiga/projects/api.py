@@ -36,6 +36,7 @@ from taiga.base.permissions import has_project_perm
 from taiga.base.api import ModelCrudViewSet
 from taiga.base.api import ModelListViewSet
 from taiga.base.api.mixins import RetrieveModelMixin
+from taiga.base.api.permissions import IsAuthenticatedPermission
 from taiga.base.utils.slug import slugify_uniquely
 from taiga.users.models import Role
 
@@ -73,7 +74,7 @@ class ProjectAdminViewSet(ModelCrudViewSet):
 class ProjectViewSet(ModelCrudViewSet):
     serializer_class = serializers.ProjectDetailSerializer
     list_serializer_class = serializers.ProjectSerializer
-    permission_classes = (IsAuthenticated, permissions.ProjectPermission)
+    permission_classes = (permissions.ProjectPermission, )
 
     def get_queryset(self):
         qs = models.Project.objects.all()
@@ -336,7 +337,7 @@ class ProjectTemplateViewSet(ModelCrudViewSet):
 class FansViewSet(ModelCrudViewSet):
     serializer_class = votes_serializers.VoterSerializer
     list_serializer_class = votes_serializers.VoterSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedPermission,)
 
     def get_queryset(self):
         project = models.Project.objects.get(pk=self.kwargs.get("project_id"))
@@ -346,7 +347,7 @@ class FansViewSet(ModelCrudViewSet):
 class StarredViewSet(ModelCrudViewSet):
     serializer_class = serializers.StarredSerializer
     list_serializer_class = serializers.StarredSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedPermission,)
 
     def get_queryset(self):
         return votes_service.get_voted(self.kwargs.get("user_id"), model=models.Project)

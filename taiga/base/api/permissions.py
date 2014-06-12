@@ -192,3 +192,6 @@ class IsProjectOwner(PermissionComponent):
 
 class AllowAnyPermission(ResourcePermission):
     enought_perms = AllowAny()
+
+class IsAuthenticatedPermission(ResourcePermission):
+    enought_perms = IsAuthenticated()
