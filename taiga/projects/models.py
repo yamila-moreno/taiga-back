@@ -204,7 +204,10 @@ class Project(ProjectDefaults, TaggedMixin, models.Model):
             return
 
         # Get point instance that represent a null/undefined
-        null_points_value = self.points.get(value=None)
+        try:
+            null_points_value = self.points.get(value=None)
+        except Points.DoesNotExist:
+            null_points_value = None
 
         # Iter over all project user stories and create
         # role point instance for new created roles.
