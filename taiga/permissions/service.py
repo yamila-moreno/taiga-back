@@ -11,14 +11,25 @@ def _get_user_project_membership(user, project):
     except Membership.DoesNotExist:
         return None
 
-
-def user_has_perm(user, perm, obj=None):
+def _get_object_project(obj):
     project = None
 
     if isinstance(obj, Project):
         project = obj
     elif obj and hasattr(obj, 'project'):
         project = obj.project
+    return project
+
+
+def is_project_owner(user, obj):
+    project = _get_object_project(obj)
+    if project:
+        return project.owner == user
+    return False
+
+
+def user_has_perm(user, perm, obj=None):
+    project = _get_object_project(obj)
 
     if not project:
         return False

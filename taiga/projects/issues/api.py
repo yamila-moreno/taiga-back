@@ -104,7 +104,7 @@ class IssuesOrdering(filters.FilterBackend):
 class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin, ModelCrudViewSet):
     serializer_class = serializers.IssueNeighborsSerializer
     list_serializer_class = serializers.IssueSerializer
-    permission_classes = (IsAuthenticated, permissions.IssuePermission)
+    permission_classes = (permissions.IssuePermission, )
 
     filter_backends = (filters.IsProjectMemberFilterBackend, IssuesFilter, IssuesOrdering)
     retrieve_exclude_filters = (IssuesFilter,)
@@ -118,6 +118,11 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
                        "owner",
                        "assigned_to",
                        "subject")
+
+    def list(self):
+        project = self.request.QUERY_PARAMS.get("project", None)
+        self.check_permissions(request, 'list', project)
+        return super().list()
 
     def get_queryset(self):
         qs = models.Issue.objects.all()
@@ -168,7 +173,7 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
 class VotersViewSet(ModelCrudViewSet):
     serializer_class = votes_serializers.VoterSerializer
     list_serializer_class = votes_serializers.VoterSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IssueVotersPermission, )
 
     def get_queryset(self):
         issue = models.Issue.objects.get(pk=self.kwargs.get("issue_id"))

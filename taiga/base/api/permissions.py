@@ -17,6 +17,7 @@
 import abc
 
 from taiga.base.utils import sequence as sq
+from taiga.permissions.service import user_has_perm, is_project_owner
 
 
 ######################################################################
@@ -157,6 +158,32 @@ class DenyAll(PermissionComponent):
 class IsAuthenticated(PermissionComponent):
     def check_permissions(self, request, view, obj=None):
         return request.user and request.user.is_authenticated()
+
+
+class HasProjectPerm(PermissionComponent):
+    def __init__(self, perm, *components):
+        self.project_perm = perm
+        super().__init__(*components)
+
+    def check_permissions(self, request, view, obj=None):
+        return user_has_perm(request.user, self.project_perm, obj)
+
+
+class HasMandatoryParam(PermissionComponent):
+    def __init__(self, param, *components):
+        self.mandatory_param = param
+        super().__init__(*components)
+
+    def check_permissions(self, request, view, obj=None):
+        param = request.GET.get(self.mandatory_param, None)
+        if param:
+            return True
+        return False
+
+
+class IsProjectOwner(PermissionComponent):
+    def check_permissions(self, request, view, obj=None):
+        return is_project_owner(request.user, obj)
 
 
 ######################################################################
