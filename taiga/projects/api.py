@@ -50,27 +50,6 @@ from .votes import services as votes_service
 from .votes import serializers as votes_serializers
 
 
-class ProjectAdminViewSet(ModelCrudViewSet):
-    serializer_class = serializers.ProjectDetailSerializer
-    list_serializer_class = serializers.ProjectSerializer
-    permission_classes = (IsAuthenticated, permissions.ProjectAdminPermission)
-
-    def get_queryset(self):
-        qs = models.Project.objects.all()
-        qs = attach_votescount_to_queryset(qs, as_field="stars_count")
-        return qs
-
-    def pre_save(self, obj):
-        if not obj.id:
-            obj.owner = self.request.user
-
-        # TODO REFACTOR THIS
-        if not obj.id:
-            obj.template = self.request.QUERY_PARAMS.get('template', None)
-
-        super().pre_save(obj)
-
-
 class ProjectViewSet(ModelCrudViewSet):
     serializer_class = serializers.ProjectDetailSerializer
     list_serializer_class = serializers.ProjectSerializer
@@ -118,6 +97,10 @@ class ProjectViewSet(ModelCrudViewSet):
     def pre_save(self, obj):
         if not obj.id:
             obj.owner = self.request.user
+
+        # TODO REFACTOR THIS
+        if not obj.id:
+            obj.template = self.request.QUERY_PARAMS.get('template', None)
 
         super().pre_save(obj)
 

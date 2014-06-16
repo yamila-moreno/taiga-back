@@ -15,7 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from taiga.base.api.permissions import ResourcePermission, HasProjectPerm, IsProjectOwner, HasMandatoryParam, PermissionComponent
+from taiga.base.api.permissions import (ResourcePermission, HasProjectPerm,
+                                        IsProjectOwner, HasMandatoryParam,
+                                        PermissionComponent, HasProjectParamAndPerm)
 
 
 class IssuePermission(ResourcePermission):
@@ -25,7 +27,7 @@ class IssuePermission(ResourcePermission):
     create_perms = HasProjectPerm('add_issue')
     update_perms = HasProjectPerm('update_issue')
     destroy_perms = HasProjectPerm('delete_issue')
-    list_perms = HasMandatoryParam('project') & HasProjectPerm('view_issues')
+    list_perms = HasProjectParamAndPerm('view_issues')
 
 
 class HasIssueIdUrlParam(PermissionComponent):

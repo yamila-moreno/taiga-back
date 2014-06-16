@@ -44,10 +44,6 @@ from taiga.searches.api import SearchViewSet
 router.register(r"search", SearchViewSet, base_name="search")
 
 
-from taiga.projects.api import ProjectAdminViewSet
-router.register(r"site-projects", ProjectAdminViewSet, base_name="site-projects")
-
-
 # Projects & Types
 from taiga.projects.api import RolesViewSet
 from taiga.projects.api import ProjectViewSet

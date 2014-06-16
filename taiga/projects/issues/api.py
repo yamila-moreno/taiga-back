@@ -121,12 +121,6 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
                        "assigned_to",
                        "subject")
 
-    def list(self, request, *args, **kwargs):
-        project_id = self.request.QUERY_PARAMS.get("project", None)
-        project = get_object_or_404(Project, pk=project_id)
-        self.check_permissions(request, 'list', project)
-        return super().list(request, *args, **kwargs)
-
     def get_queryset(self):
         qs = models.Issue.objects.all()
         qs = qs.prefetch_related("attachments")

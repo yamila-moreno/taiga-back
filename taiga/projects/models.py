@@ -680,11 +680,9 @@ class ProjectTemplate(models.Model):
                 slug=role["slug"],
                 order=role["order"],
                 computable=role["computable"],
-                project=project
+                project=project,
+                permissions = role['permissions']
             )
-            permissions = [Permission.objects.get(codename=codename) for codename in role["permissions"]]
-            for permission in permissions:
-                newRoleInstance.permissions.add(permission)
 
         if self.points:
             project.default_points = Points.objects.get(name=self.default_options["points"],
