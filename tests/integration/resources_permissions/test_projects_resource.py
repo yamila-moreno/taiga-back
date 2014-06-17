@@ -201,39 +201,26 @@ def test_project_action_stats(client, data):
     private_url = reverse('projects-stats', kwargs={"pk": data.private_project1.pk})
 
     response = client.get(public_url)
-    project_data = json.loads(response.content.decode('utf-8'))
     assert response.status_code == 200
-
     response = client.get(private_url)
     assert response.status_code == 404
 
     client.login(data.registered_user)
-
     response = client.get(public_url)
-    project_data = json.loads(response.content.decode('utf-8'))
     assert response.status_code == 200
-
     response = client.get(private_url)
     assert response.status_code == 404
 
     client.login(data.project_member)
-
     response = client.get(public_url)
-    project_data = json.loads(response.content.decode('utf-8'))
     assert response.status_code == 200
-
     response = client.get(private_url)
-    project_data = json.loads(response.content.decode('utf-8'))
     assert response.status_code == 200
 
     client.login(data.project_owner)
-
     response = client.get(public_url)
-    project_data = json.loads(response.content.decode('utf-8'))
     assert response.status_code == 200
-
     response = client.get(private_url)
-    project_data = json.loads(response.content.decode('utf-8'))
     assert response.status_code == 200
 
 
@@ -291,309 +278,383 @@ def test_project_action_unstar(client, data):
     assert response.status_code == 200
     response = client.post(private_url)
     assert response.status_code == 200
+
+
+def test_project_action_issues_stats(client, data):
+    public_url = reverse('projects-issues-stats', kwargs={"pk": data.public_project.pk})
+    private_url = reverse('projects-issues-stats', kwargs={"pk": data.private_project1.pk})
+
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 404
+
+    client.login(data.registered_user)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 404
+
+    client.login(data.project_member)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 200
+
+    client.login(data.project_owner)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 200
+
+
+def test_project_action_issues_filters_data(client, data):
+    public_url = reverse('projects-issue-filters-data', kwargs={"pk": data.public_project.pk})
+    private_url = reverse('projects-issue-filters-data', kwargs={"pk": data.private_project1.pk})
+
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 404
+
+    client.login(data.registered_user)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 404
+
+    client.login(data.project_member)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 200
+
+    client.login(data.project_owner)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 200
+
+
+def test_project_action_tags(client, data):
+    public_url = reverse('projects-tags', kwargs={"pk": data.public_project.pk})
+    private_url = reverse('projects-tags', kwargs={"pk": data.private_project1.pk})
+
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 404
+
+    client.login(data.registered_user)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 404
+
+    client.login(data.project_member)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 200
+
+    client.login(data.project_owner)
+    response = client.get(public_url)
+    assert response.status_code == 200
+    response = client.get(private_url)
+    assert response.status_code == 200
+
+
 #
 #
-# def test_project_action_issues_stats(client):
+# def test_membership_retrieve(client, data):
 #     assert False
 #
 #
-# def test_project_action_issues_filters_data(client):
+# def test_membership_update(client, data):
 #     assert False
 #
 #
-# def test_project_action_issues_tags(client):
+# def test_membership_delete(client, data):
 #     assert False
 #
 #
-# def test_membership_retrieve(client):
+# def test_membership_list(client, data):
 #     assert False
 #
 #
-# def test_membership_update(client):
+# def test_membership_patch(client, data):
 #     assert False
 #
 #
-# def test_membership_delete(client):
+# def test_invitation_retrieve(client, data):
 #     assert False
 #
 #
-# def test_membership_list(client):
+# def test_invitation_update(client, data):
 #     assert False
 #
 #
-# def test_membership_patch(client):
+# def test_invitation_delete(client, data):
 #     assert False
 #
 #
-# def test_invitation_retrieve(client):
+# def test_invitation_list(client, data):
 #     assert False
 #
 #
-# def test_invitation_update(client):
+# def test_invitation_patch(client, data):
 #     assert False
 #
 #
-# def test_invitation_delete(client):
+# def test_roles_retrieve(client, data):
 #     assert False
 #
 #
-# def test_invitation_list(client):
+# def test_roles_update(client, data):
 #     assert False
 #
 #
-# def test_invitation_patch(client):
+# def test_roles_delete(client, data):
 #     assert False
 #
 #
-# def test_roles_retrieve(client):
+# def test_roles_list(client, data):
 #     assert False
 #
 #
-# def test_roles_update(client):
+# def test_roles_patch(client, data):
 #     assert False
 #
 #
-# def test_roles_delete(client):
+# def test_points_retrieve(client, data):
 #     assert False
 #
 #
-# def test_roles_list(client):
+# def test_points_update(client, data):
 #     assert False
 #
 #
-# def test_roles_patch(client):
+# def test_points_delete(client, data):
 #     assert False
 #
 #
-# def test_points_retrieve(client):
+# def test_points_list(client, data):
 #     assert False
 #
 #
-# def test_points_update(client):
+# def test_points_patch(client, data):
 #     assert False
 #
 #
-# def test_points_delete(client):
+# def test_points_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_points_list(client):
+# def test_user_story_status_retrieve(client, data):
 #     assert False
 #
 #
-# def test_points_patch(client):
+# def test_user_story_status_update(client, data):
 #     assert False
 #
 #
-# def test_points_action_bulk_update_order(client):
+# def test_user_story_status_delete(client, data):
 #     assert False
 #
 #
-# def test_user_story_status_retrieve(client):
+# def test_user_story_status_list(client, data):
 #     assert False
 #
 #
-# def test_user_story_status_update(client):
+# def test_user_story_status_patch(client, data):
 #     assert False
 #
 #
-# def test_user_story_status_delete(client):
+# def test_user_story_status_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_user_story_status_list(client):
+# def test_task_status_retrieve(client, data):
 #     assert False
 #
 #
-# def test_user_story_status_patch(client):
+# def test_task_status_update(client, data):
 #     assert False
 #
 #
-# def test_user_story_status_action_bulk_update_order(client):
+# def test_task_status_delete(client, data):
 #     assert False
 #
 #
-# def test_task_status_retrieve(client):
+# def test_task_status_list(client, data):
 #     assert False
 #
 #
-# def test_task_status_update(client):
+# def test_task_status_patch(client, data):
 #     assert False
 #
 #
-# def test_task_status_delete(client):
+# def test_task_status_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_task_status_list(client):
+# def test_severity_retrieve(client, data):
 #     assert False
 #
 #
-# def test_task_status_patch(client):
+# def test_severity_update(client, data):
 #     assert False
 #
 #
-# def test_task_status_action_bulk_update_order(client):
+# def test_severity_delete(client, data):
 #     assert False
 #
 #
-# def test_severity_retrieve(client):
+# def test_severity_list(client, data):
 #     assert False
 #
 #
-# def test_severity_update(client):
+# def test_severity_patch(client, data):
 #     assert False
 #
 #
-# def test_severity_delete(client):
+# def test_severity_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_severity_list(client):
+# def test_priority_retrieve(client, data):
 #     assert False
 #
 #
-# def test_severity_patch(client):
+# def test_priority_update(client, data):
 #     assert False
 #
 #
-# def test_severity_action_bulk_update_order(client):
+# def test_priority_delete(client, data):
 #     assert False
 #
 #
-# def test_priority_retrieve(client):
+# def test_priority_list(client, data):
 #     assert False
 #
 #
-# def test_priority_update(client):
+# def test_priority_patch(client, data):
 #     assert False
 #
 #
-# def test_priority_delete(client):
+# def test_priority_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_priority_list(client):
+# def test_issue_type_retrieve(client, data):
 #     assert False
 #
 #
-# def test_priority_patch(client):
+# def test_issue_type_update(client, data):
 #     assert False
 #
 #
-# def test_priority_action_bulk_update_order(client):
+# def test_issue_type_delete(client, data):
 #     assert False
 #
 #
-# def test_issue_type_retrieve(client):
+# def test_issue_type_list(client, data):
 #     assert False
 #
 #
-# def test_issue_type_update(client):
+# def test_issue_type_patch(client, data):
 #     assert False
 #
 #
-# def test_issue_type_delete(client):
+# def test_issue_type_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_issue_type_list(client):
+# def test_issue_status_retrieve(client, data):
 #     assert False
 #
 #
-# def test_issue_type_patch(client):
+# def test_issue_status_update(client, data):
 #     assert False
 #
 #
-# def test_issue_type_action_bulk_update_order(client):
+# def test_issue_status_delete(client, data):
 #     assert False
 #
 #
-# def test_issue_status_retrieve(client):
+# def test_issue_status_list(client, data):
 #     assert False
 #
 #
-# def test_issue_status_update(client):
+# def test_issue_status_patch(client, data):
 #     assert False
 #
 #
-# def test_issue_status_delete(client):
+# def test_issue_status_action_bulk_update_order(client, data):
 #     assert False
 #
 #
-# def test_issue_status_list(client):
+# def test_project_template_retrieve(client, data):
 #     assert False
 #
 #
-# def test_issue_status_patch(client):
+# def test_project_template_update(client, data):
 #     assert False
 #
 #
-# def test_issue_status_action_bulk_update_order(client):
+# def test_project_template_delete(client, data):
 #     assert False
 #
 #
-# def test_project_template_retrieve(client):
+# def test_project_template_list(client, data):
 #     assert False
 #
 #
-# def test_project_template_update(client):
+# def test_project_template_patch(client, data):
 #     assert False
 #
 #
-# def test_project_template_delete(client):
+# def test_project_template_action_create_from_project(client, data):
 #     assert False
 #
 #
-# def test_project_template_list(client):
+# def test_fans_retrieve(client, data):
 #     assert False
 #
 #
-# def test_project_template_patch(client):
+# def test_fans_update(client, data):
 #     assert False
 #
 #
-# def test_project_template_action_create_from_project(client):
+# def test_fans_delete(client, data):
 #     assert False
 #
 #
-# def test_fans_retrieve(client):
+# def test_fans_list(client, data):
 #     assert False
 #
 #
-# def test_fans_update(client):
+# def test_fans_patch(client, data):
 #     assert False
 #
 #
-# def test_fans_delete(client):
+# def test_starred_retrieve(client, data):
 #     assert False
 #
 #
-# def test_fans_list(client):
+# def test_starred_update(client, data):
 #     assert False
 #
 #
-# def test_fans_patch(client):
+# def test_starred_delete(client, data):
 #     assert False
 #
 #
-# def test_starred_retrieve(client):
+# def test_starred_list(client, data):
 #     assert False
 #
 #
-# def test_starred_update(client):
-#     assert False
-#
-#
-# def test_starred_delete(client):
-#     assert False
-#
-#
-# def test_starred_list(client):
-#     assert False
-#
-#
-# def test_starred_patch(client):
+# def test_starred_patch(client, data):
 #     assert False
 #
 #
