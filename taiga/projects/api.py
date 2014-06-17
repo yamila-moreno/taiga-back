@@ -176,12 +176,20 @@ class InvitationViewSet(RetrieveModelMixin, viewsets.ReadOnlyModelViewSet):
 class RolesViewSet(ModelCrudViewSet):
     model = Role
     serializer_class = serializers.RoleSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.RolesPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.RolesPermission, )
     filter_fields = ('project',)
 
     def get_queryset(self):
-        return self.model.objects.all().prefetch_related('permissions')
+        qs = self.model.objects.all()
+
+        if self.request.user.is_authenticated():
+            qs = qs.filter(Q(project__owner=self.request.user) |
+                           Q(project__members=self.request.user) |
+                           Q(project__is_private=False))
+        else:
+            qs = qs.filter(project__is_private=False)
+
+        return qs.distinct()
 
 
 # User Stories commin ViewSets
