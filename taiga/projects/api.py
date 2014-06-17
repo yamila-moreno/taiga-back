@@ -64,8 +64,6 @@ class ProjectViewSet(ModelCrudViewSet):
                            Q(members=self.request.user) |
                            Q(is_private=False))
         else:
-            import pdb; pdb.set_trace()
-
             qs = qs.filter(is_private=False)
 
         return qs.distinct()
