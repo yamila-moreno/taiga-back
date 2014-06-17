@@ -44,20 +44,16 @@ def _get_validation_exclusions(obj, pk=None, slug_field=None, lookup_field=None)
         pk_field = obj._meta.pk
         while pk_field.rel:
             pk_field = pk_field.rel.to._meta.pk
+        include.append(pk_field.name)
 
-            self.object = serializer.save(force_insert=True)
-            self.post_save(self.object, created=True)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED,
-                            headers=headers)
+    if slug_field:
+        # Pending deprecation
+        include.append(slug_field)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if lookup_field and lookup_field != 'pk':
+        include.append(lookup_field)
 
-    def get_success_headers(self, data):
-        try:
-            return {'Location': data[api_settings.URL_FIELD_NAME]}
-        except (TypeError, KeyError):
-            return {}
+    return [field.name for field in obj._meta.fields if field.name not in include]
 
 
 class CreateModelMixin(object):

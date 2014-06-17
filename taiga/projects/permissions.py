@@ -26,18 +26,12 @@ class ProjectPermission(ResourcePermission):
     update_perms = IsProjectOwner()
     destroy_perms = IsProjectOwner()
     list_perms = AllowAny()
-
-
-class ProjectAdminPermission(BasePermission):
-    def has_permission(self, request, view):
-        if request.method in self.safe_methods:
-            return True
-        return super().has_permission(request, view)
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in self.safe_methods:
-            return True
-        return super().has_object_permission(request, view, obj)
+    stats_perms = AllowAny()
+    star_perms = IsAuthenticated()
+    unstar_perms = IsAuthenticated()
+    issues_stats_perms = AllowAny()
+    issues_filters_data_perms = AllowAny()
+    tags_perms = AllowAny()
 
 
 class MembershipPermission(BasePermission):

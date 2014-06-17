@@ -8,6 +8,7 @@ ANON_PERMISSIONS = [
 ]
 
 USER_PERMISSIONS = [
+    ('view_project', 'View project'),
     ('request_membership', 'Request membership'),
     ('create_project', 'Create project'),
     ('follow_public_project', 'Follow project'),

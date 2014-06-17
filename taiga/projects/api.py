@@ -20,7 +20,6 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from rest_framework import viewsets
@@ -36,7 +35,7 @@ from taiga.base.permissions import has_project_perm
 from taiga.base.api import ModelCrudViewSet
 from taiga.base.api import ModelListViewSet
 from taiga.base.api.mixins import RetrieveModelMixin
-from taiga.base.api.permissions import IsAuthenticatedPermission
+from taiga.base.api.permissions import IsAuthenticatedPermission, AllowAnyPermission
 from taiga.base.utils.slug import slugify_uniquely
 from taiga.users.models import Role
 
@@ -71,33 +70,39 @@ class ProjectViewSet(ModelCrudViewSet):
     @detail_route(methods=['get'])
     def stats(self, request, pk=None):
         project = self.get_object()
+        self.check_permissions(request, 'stats', project)
         return Response(services.get_stats_for_project(project))
 
-    @detail_route(methods=['post'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['post'])
     def star(self, request, pk=None):
         project = self.get_object()
+        self.check_permissions(request, 'star', project)
         votes_service.add_vote(project, user=request.user)
         return Response(status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['post'])
     def unstar(self, request, pk=None):
         project = self.get_object()
+        self.check_permissions(request, 'unstar', project)
         votes_service.remove_vote(project, user=request.user)
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
     def issues_stats(self, request, pk=None):
         project = self.get_object()
+        self.check_permissions(request, 'issues_stats', project)
         return Response(services.get_stats_for_project_issues(project))
 
     @detail_route(methods=['get'])
     def issue_filters_data(self, request, pk=None):
         project = self.get_object()
+        self.check_permissions(request, 'issues_filters_data', project)
         return Response(services.get_issues_filters_data(project))
 
     @detail_route(methods=['get'])
     def tags(self, request, pk=None):
         project = self.get_object()
+        self.check_permissions(request, 'tags', project)
         return Response(services.get_all_tags(project))
 
     def pre_save(self, obj):
@@ -114,7 +119,7 @@ class ProjectViewSet(ModelCrudViewSet):
 class MembershipViewSet(ModelCrudViewSet):
     model = models.Membership
     serializer_class = serializers.MembershipSerializer
-    permission_classes = (IsAuthenticated, permissions.MembershipPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.MembershipPermission)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
@@ -162,7 +167,7 @@ class InvitationViewSet(RetrieveModelMixin, viewsets.ReadOnlyModelViewSet):
     queryset = models.Membership.objects.all()
     serializer_class = serializers.MembershipSerializer
     lookup_field = "token"
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAnyPermission,)
 
     def list(self, *args, **kwargs):
         raise exc.PermissionDenied(_("You don't have permisions to see that."))
@@ -171,7 +176,7 @@ class InvitationViewSet(RetrieveModelMixin, viewsets.ReadOnlyModelViewSet):
 class RolesViewSet(ModelCrudViewSet):
     model = Role
     serializer_class = serializers.RoleSerializer
-    permission_classes = (IsAuthenticated, permissions.RolesPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.RolesPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ('project',)
 
@@ -214,7 +219,7 @@ class BulkUpdateOrderMixin(object):
 class PointsViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Points
     serializer_class = serializers.PointsSerializer
-    permission_classes = (IsAuthenticated, permissions.PointsPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.PointsPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ('project',)
     bulk_update_param = "bulk_points"
@@ -225,7 +230,7 @@ class PointsViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class UserStoryStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.UserStoryStatus
     serializer_class = serializers.UserStoryStatusSerializer
-    permission_classes = (IsAuthenticated, permissions.UserStoryStatusPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.UserStoryStatusPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ('project',)
     bulk_update_param = "bulk_userstory_statuses"
@@ -236,7 +241,7 @@ class UserStoryStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class TaskStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.TaskStatus
     serializer_class = serializers.TaskStatusSerializer
-    permission_classes = (IsAuthenticated, permissions.TaskStatusPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.TaskStatusPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_task_statuses"
@@ -247,7 +252,7 @@ class TaskStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class SeverityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Severity
     serializer_class = serializers.SeveritySerializer
-    permission_classes = (IsAuthenticated, permissions.SeverityPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.SeverityPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_severities"
@@ -258,7 +263,7 @@ class SeverityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class PriorityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Priority
     serializer_class = serializers.PrioritySerializer
-    permission_classes = (IsAuthenticated, permissions.PriorityPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.PriorityPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_priorities"
@@ -269,7 +274,7 @@ class PriorityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class IssueTypeViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.IssueType
     serializer_class = serializers.IssueTypeSerializer
-    permission_classes = (IsAuthenticated, permissions.IssueTypePermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.IssueTypePermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_issue_types"
@@ -280,7 +285,7 @@ class IssueTypeViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class IssueStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.IssueStatus
     serializer_class = serializers.IssueStatusSerializer
-    permission_classes = (IsAuthenticated, permissions.IssueStatusPermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.IssueStatusPermission)
     filter_backends = (filters.IsProjectMemberFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_issue_statuses"
@@ -291,7 +296,7 @@ class IssueStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class ProjectTemplateViewSet(ModelCrudViewSet):
     model = models.ProjectTemplate
     serializer_class = serializers.ProjectTemplateSerializer
-    permission_classes = (IsAuthenticated, permissions.ProjectTemplatePermission)
+    permission_classes = (IsAuthenticatedPermission, permissions.ProjectTemplatePermission)
 
     @list_route(methods=["POST"])
     def create_from_project(self, request, **kwargs):

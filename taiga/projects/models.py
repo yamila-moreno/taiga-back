@@ -35,7 +35,6 @@ from taiga.base.tags import TaggedMixin
 from taiga.users.models import Role
 from taiga.base.utils.slug import slugify_uniquely
 from taiga.base.utils.dicts import dict_sum
-from taiga.permissions.permissions import ANON_PERMISSIONS, USER_PERMISSIONS
 
 from . import choices
 
@@ -154,11 +153,9 @@ class Project(ProjectDefaults, TaggedMixin, models.Model):
                                           blank=True, default=None,
                                           verbose_name=_("creation template"))
     anon_permissions = TextArrayField(blank=True, null=True,
-                                     choices=ANON_PERMISSIONS,
                                      default=[],
                                      verbose_name=_("anonymous permissions"))
     public_permissions = TextArrayField(blank=True, null=True,
-                                        choices=USER_PERMISSIONS,
                                         default=[],
                                         verbose_name=_("user permissions"))
     is_private = models.BooleanField(default=False, null=False, blank=True,
