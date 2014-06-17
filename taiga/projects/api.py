@@ -58,8 +58,16 @@ class ProjectViewSet(ModelCrudViewSet):
     def get_queryset(self):
         qs = models.Project.objects.all()
         qs = attach_votescount_to_queryset(qs, as_field="stars_count")
-        qs = qs.filter(Q(owner=self.request.user) |
-                       Q(members=self.request.user))
+
+        if self.request.user.is_authenticated():
+            qs = qs.filter(Q(owner=self.request.user) |
+                           Q(members=self.request.user) |
+                           Q(is_private=False))
+        else:
+            import pdb; pdb.set_trace()
+
+            qs = qs.filter(is_private=False)
+
         return qs.distinct()
 
     @detail_route(methods=['get'])

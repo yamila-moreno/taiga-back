@@ -41,12 +41,18 @@ def role_has_perm(role, perm):
     return perm in role.permissions
 
 
+def _get_membership_permissions(membership):
+    if membership and membership.role and membership.role.permissions:
+        return membership.role.permissions
+    return []
+
+
 def get_user_project_permissions(user, project):
     membership = _get_user_project_membership(user, project)
     if project.owner == user:
         owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))
         if membership:
-            members_permissions = membership.role.permissions
+            members_permissions = _get_membership_permissions(membership)
         else:
             members_permissions = list(map(lambda perm: perm[0], MEMBERS_PERMISSIONS))
 
@@ -54,9 +60,9 @@ def get_user_project_permissions(user, project):
     elif membership:
         if membership.is_owner:
             owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))
-            return set(project.anon_permissions + project.public_permissions + membership.role.permissions + owner_permissions)
+            return set(project.anon_permissions + project.public_permissions + _get_membership_permissions(membership) + owner_permissions)
         else:
-            return set(project.anon_permissions + project.public_permissions + membership.role.permissions)
+            return set(project.anon_permissions + project.public_permissions + _get_membership_permissions(membership))
     elif project.is_private:
         return set()
     elif user.is_authenticated():
