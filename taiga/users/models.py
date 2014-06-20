@@ -24,6 +24,7 @@ from django.utils import timezone
 from djorm_pgarray.fields import TextArrayField
 
 from taiga.base.utils.slug import slugify_uniquely
+from taiga.permissions.permissions import MEMBERS_PERMISSIONS
 
 import random
 import re
@@ -127,7 +128,8 @@ class Role(models.Model):
     slug = models.SlugField(max_length=250, null=False, blank=True,
                             verbose_name=_("slug"))
     permissions = TextArrayField(blank=True, null=True,
-                                 verbose_name=_("permissions"))
+                                 verbose_name=_("permissions"),
+                                 choices=MEMBERS_PERMISSIONS)
     order = models.IntegerField(default=10, null=False, blank=False,
                                 verbose_name=_("order"))
     project = models.ForeignKey("projects.Project", null=False, blank=False,

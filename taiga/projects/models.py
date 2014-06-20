@@ -23,13 +23,13 @@ from django.db.models.loading import get_model
 from django.conf import settings
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
 from picklefield.fields import PickledObjectField
 from django_pgjson.fields import JsonField
 from djorm_pgarray.fields import TextArrayField
+from taiga.permissions.permissions import ANON_PERMISSIONS, USER_PERMISSIONS
 
 from taiga.base.tags import TaggedMixin
 from taiga.users.models import Role
@@ -43,6 +43,7 @@ VIDEOCONFERENCES_CHOICES = (
     ('appear-in', 'AppearIn'),
     ('talky', 'Talky'),
 )
+
 
 class Membership(models.Model):
     # This model stores all project memberships. Also
@@ -153,13 +154,15 @@ class Project(ProjectDefaults, TaggedMixin, models.Model):
                                           blank=True, default=None,
                                           verbose_name=_("creation template"))
     anon_permissions = TextArrayField(blank=True, null=True,
-                                     default=[],
-                                     verbose_name=_("anonymous permissions"))
+                                      default=[],
+                                      verbose_name=_("anonymous permissions"),
+                                      choices=ANON_PERMISSIONS)
     public_permissions = TextArrayField(blank=True, null=True,
                                         default=[],
-                                        verbose_name=_("user permissions"))
+                                        verbose_name=_("user permissions"),
+                                        choices=USER_PERMISSIONS)
     is_private = models.BooleanField(default=False, null=False, blank=True,
-                                    verbose_name=_("is private"))
+                                     verbose_name=_("is private"))
 
     class Meta:
         verbose_name = "project"
@@ -524,7 +527,6 @@ class ProjectTemplate(models.Model):
             "severity": getattr(project.default_severity, "name", None)
         }
 
-
         self.us_statuses = []
         for us_status in project.us_statuses.all():
             self.us_statuses.append({
@@ -672,13 +674,13 @@ class ProjectTemplate(models.Model):
             )
 
         for role in self.roles:
-            newRoleInstance = Role.objects.create(
+            Role.objects.create(
                 name=role["name"],
                 slug=role["slug"],
                 order=role["order"],
                 computable=role["computable"],
                 project=project,
-                permissions = role['permissions']
+                permissions=role['permissions']
             )
 
         if self.points:
@@ -704,7 +706,6 @@ class ProjectTemplate(models.Model):
 
         if self.severities:
             project.default_severity = Severity.objects.get(name=self.default_options["severity"], project=project)
-
 
         if self.default_owner_role:
             # FIXME: is operation should to be on template apply method?
