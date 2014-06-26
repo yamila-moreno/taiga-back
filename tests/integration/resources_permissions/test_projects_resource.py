@@ -89,7 +89,7 @@ def test_project_retrieve(client, data):
 
 
 def test_project_update(client, data):
-    url = reverse('projects-detail', kwargs={"pk": data.private_project1.pk})
+    url = reverse('projects-detail', kwargs={"pk": data.private_project2.pk})
 
     project_data = ProjectDetailSerializer(data.private_project1).data
     project_data["is_private"] = False
@@ -107,7 +107,7 @@ def test_project_update(client, data):
 
 
 def test_project_delete(client, data):
-    url = reverse('projects-detail', kwargs={"pk": data.private_project1.pk})
+    url = reverse('projects-detail', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -124,33 +124,33 @@ def test_project_list(client, data):
 
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 1
+    assert len(projects_data) == 2
     assert response.status_code == 200
 
     client.login(data.registered_user)
 
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 1
+    assert len(projects_data) == 2
     assert response.status_code == 200
 
     client.login(data.project_member_with_perms)
 
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 2
+    assert len(projects_data) == 3
     assert response.status_code == 200
 
     client.login(data.project_owner)
 
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 2
+    assert len(projects_data) == 3
     assert response.status_code == 200
 
 
 def test_project_patch(client, data):
-    url = reverse('projects-detail', kwargs={"pk": data.private_project1.pk})
+    url = reverse('projects-detail', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -165,7 +165,8 @@ def test_project_patch(client, data):
 
 def test_project_action_stats(client, data):
     public_url = reverse('projects-stats', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-stats', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-stats', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-stats', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -175,13 +176,16 @@ def test_project_action_stats(client, data):
     ]
     results = util_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private_url, None, users)
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
 def test_project_action_star(client, data):
     public_url = reverse('projects-star', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-star', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-star', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-star', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -191,13 +195,16 @@ def test_project_action_star(client, data):
     ]
     results = util_test_http_method(client, 'post', public_url, None, users)
     assert results == [401, 200, 200, 200]
-    results = util_test_http_method(client, 'post', private_url, None, users)
+    results = util_test_http_method(client, 'post', private1_url, None, users)
+    assert results == [401, 200, 200, 200]
+    results = util_test_http_method(client, 'post', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
 def test_project_action_unstar(client, data):
     public_url = reverse('projects-unstar', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-unstar', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-unstar', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-unstar', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -207,13 +214,16 @@ def test_project_action_unstar(client, data):
     ]
     results = util_test_http_method(client, 'post', public_url, None, users)
     assert results == [401, 200, 200, 200]
-    results = util_test_http_method(client, 'post', private_url, None, users)
+    results = util_test_http_method(client, 'post', private1_url, None, users)
+    assert results == [401, 200, 200, 200]
+    results = util_test_http_method(client, 'post', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
 def test_project_action_issues_stats(client, data):
     public_url = reverse('projects-issues-stats', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-issues-stats', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-issues-stats', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-issues-stats', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -223,13 +233,16 @@ def test_project_action_issues_stats(client, data):
     ]
     results = util_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private_url, None, users)
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
 def test_project_action_issues_filters_data(client, data):
     public_url = reverse('projects-issue-filters-data', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-issue-filters-data', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-issue-filters-data', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-issue-filters-data', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -239,13 +252,16 @@ def test_project_action_issues_filters_data(client, data):
     ]
     results = util_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private_url, None, users)
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
 def test_project_action_tags(client, data):
     public_url = reverse('projects-tags', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-tags', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-tags', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-tags', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -255,7 +271,9 @@ def test_project_action_tags(client, data):
     ]
     results = util_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private_url, None, users)
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 

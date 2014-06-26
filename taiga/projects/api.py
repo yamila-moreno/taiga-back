@@ -19,6 +19,7 @@ import uuid
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
+from django.db.models.sql.where import ExtraWhere, OR
 
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
@@ -62,8 +63,10 @@ class ProjectViewSet(ModelCrudViewSet):
             qs = qs.filter(Q(owner=self.request.user) |
                            Q(members=self.request.user) |
                            Q(is_private=False))
+            qs.query.where.add(ExtraWhere(["public_permissions @> ARRAY['view_project']"], []), OR)
         else:
             qs = qs.filter(is_private=False)
+            qs.query.where.add(ExtraWhere(["anon_permissions @> ARRAY['view_project']"], []), OR)
 
         return qs.distinct()
 
