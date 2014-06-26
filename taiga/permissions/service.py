@@ -72,8 +72,6 @@ def get_user_project_permissions(user, project):
             return set(project.anon_permissions + project.public_permissions + _get_membership_permissions(membership) + owner_permissions)
         else:
             return set(project.anon_permissions + project.public_permissions + _get_membership_permissions(membership))
-    elif project.is_private:
-        return set()
     elif user.is_authenticated():
         return set(project.anon_permissions + project.public_permissions)
     else:

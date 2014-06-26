@@ -46,11 +46,19 @@ def data():
     m.private_project2 = f.ProjectFactory(is_private=True,
                                           anon_permissions=[],
                                           public_permissions=[],
-                                          owner=m.other_user)
+                                          owner=m.project_owner)
 
     m.membership = f.MembershipFactory(project=m.private_project1,
                                        user=m.project_member_with_perms,
                                        role__project=m.private_project1,
+                                       role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
+    m.membership = f.MembershipFactory(project=m.private_project1,
+                                       user=m.project_member_without_perms,
+                                       role__project=m.private_project1,
+                                       role__permissions=[])
+    m.membership = f.MembershipFactory(project=m.private_project2,
+                                       user=m.project_member_with_perms,
+                                       role__project=m.private_project2,
                                        role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
     m.membership = f.MembershipFactory(project=m.private_project2,
                                        user=m.project_member_without_perms,
@@ -62,7 +70,8 @@ def data():
 
 def test_project_retrieve(client, data):
     public_url = reverse('projects-detail', kwargs={"pk": data.public_project.pk})
-    private_url = reverse('projects-detail', kwargs={"pk": data.private_project1.pk})
+    private1_url = reverse('projects-detail', kwargs={"pk": data.private_project1.pk})
+    private2_url = reverse('projects-detail', kwargs={"pk": data.private_project2.pk})
 
     users = [
         None,
@@ -73,7 +82,9 @@ def test_project_retrieve(client, data):
 
     results = util_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private_url, None, users)
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
     assert results == [401, 403, 200, 200]
 
 
