@@ -232,8 +232,7 @@ class BulkUpdateOrderMixin(object):
 class PointsViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Points
     serializer_class = serializers.PointsSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.PointsPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.PointsPermission,)
     filter_fields = ('project',)
     bulk_update_param = "bulk_points"
     bulk_update_perm = "change_points"

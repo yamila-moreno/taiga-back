@@ -147,6 +147,8 @@ class ProjectRoleSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    permissions = PgArrayField(required=False)
+
     class Meta:
         model = Role
         fields = ('id', 'name', 'permissions', 'computable', 'project', 'order')

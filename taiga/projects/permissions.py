@@ -46,14 +46,12 @@ class MembershipPermission(BasePermission):
 
 # User Stories
 
-class PointsPermission(BasePermission):
-    get_permission = "view_points"
-    post_permission = "add_points"
-    put_permission = "change_points"
-    patch_permission = "change_points"
-    delete_permission = "delete_points"
-    safe_methods = ["HEAD", "OPTIONS"]
-    path_to_project =  ["project"]
+class PointsPermission(ResourcePermission):
+    retrieve_perms = HasProjectPerm('view_project')
+    create_perms = IsProjectOwner()
+    update_perms = IsProjectOwner()
+    destroy_perms = IsProjectOwner()
+    list_perms = AllowAny()
 
 
 class UserStoryStatusPermission(BasePermission):

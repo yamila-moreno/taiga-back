@@ -128,6 +128,7 @@ class Role(models.Model):
     slug = models.SlugField(max_length=250, null=False, blank=True,
                             verbose_name=_("slug"))
     permissions = TextArrayField(blank=True, null=True,
+                                 default=[],
                                  verbose_name=_("permissions"),
                                  choices=MEMBERS_PERMISSIONS)
     order = models.IntegerField(default=10, null=False, blank=False,

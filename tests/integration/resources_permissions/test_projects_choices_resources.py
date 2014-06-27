@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.renderers import JSONRenderer
 
-from taiga.projects.serializers import ProjectSerializer
+from taiga.projects.serializers import ProjectSerializer, RoleSerializer, PointsSerializer
 from taiga.permissions.permissions import MEMBERS_PERMISSIONS
 
 from tests import factories as f
@@ -69,6 +69,10 @@ def data():
                                        role__project=m.private_project2,
                                        role__permissions=[])
 
+    m.public_points = f.PointsFactory(project=m.public_project)
+    m.private_points1 = f.PointsFactory(project=m.private_project1)
+    m.private_points2 = f.PointsFactory(project=m.private_project2)
+
     return m
 
 
@@ -92,10 +96,39 @@ def test_roles_retrieve(client, data):
     results = util_test_http_method(client, 'get', private2_url, None, users)
     assert results == [401, 403, 403, 200, 200]
 
-# def test_roles_update(client, data):
-#     assert False
-#
-#
+
+def test_roles_update(client, data):
+    public_url = reverse('roles-detail', kwargs={"pk": data.public_project.roles.all()[0].pk})
+    private1_url = reverse('roles-detail', kwargs={"pk": data.private_project1.roles.all()[0].pk})
+    private2_url = reverse('roles-detail', kwargs={"pk": data.private_project2.roles.all()[0].pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    role_data = RoleSerializer(data.public_project.roles.all()[0]).data
+    role_data["name"] = "test"
+    role_data = JSONRenderer().render(role_data)
+    results = util_test_http_method(client, 'put', public_url, role_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    role_data = RoleSerializer(data.private_project1.roles.all()[0]).data
+    role_data["name"] = "test"
+    role_data = JSONRenderer().render(role_data)
+    results = util_test_http_method(client, 'put', private1_url, role_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    role_data = RoleSerializer(data.private_project2.roles.all()[0]).data
+    role_data["name"] = "test"
+    role_data = JSONRenderer().render(role_data)
+    results = util_test_http_method(client, 'put', private2_url, role_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+
 def test_roles_delete(client, data):
     public_url = reverse('roles-detail', kwargs={"pk": data.public_project.roles.all()[0].pk})
     private1_url = reverse('roles-detail', kwargs={"pk": data.private_project1.roles.all()[0].pk})
@@ -149,32 +182,156 @@ def test_roles_list(client, data):
     assert len(projects_data) == 5
     assert response.status_code == 200
 
-#
-#
-# def test_roles_patch(client, data):
-#     assert False
-#
-#
-# def test_points_retrieve(client, data):
-#     assert False
-#
-#
-# def test_points_update(client, data):
-#     assert False
-#
-#
-# def test_points_delete(client, data):
-#     assert False
-#
-#
-# def test_points_list(client, data):
-#     assert False
-#
-#
-# def test_points_patch(client, data):
-#     assert False
-#
-#
+
+def test_roles_patch(client, data):
+    public_url = reverse('roles-detail', kwargs={"pk": data.public_project.roles.all()[0].pk})
+    private1_url = reverse('roles-detail', kwargs={"pk": data.private_project1.roles.all()[0].pk})
+    private2_url = reverse('roles-detail', kwargs={"pk": data.private_project2.roles.all()[0].pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'patch', public_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private1_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private2_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+
+
+def test_points_retrieve(client, data):
+    public_url = reverse('points-detail', kwargs={"pk": data.public_points.pk})
+    private1_url = reverse('points-detail', kwargs={"pk": data.private_points1.pk})
+    private2_url = reverse('points-detail', kwargs={"pk": data.private_points2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'get', public_url, None, users)
+    assert results == [200, 200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
+    assert results == [401, 403, 403, 200, 200]
+
+
+def test_points_update(client, data):
+    public_url = reverse('points-detail', kwargs={"pk": data.public_points.pk})
+    private1_url = reverse('points-detail', kwargs={"pk": data.private_points1.pk})
+    private2_url = reverse('points-detail', kwargs={"pk": data.private_points2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    points_data = PointsSerializer(data.public_points).data
+    points_data["name"] = "test"
+    points_data = JSONRenderer().render(points_data)
+    results = util_test_http_method(client, 'put', public_url, points_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    points_data = PointsSerializer(data.private_points1).data
+    points_data["name"] = "test"
+    points_data = JSONRenderer().render(points_data)
+    results = util_test_http_method(client, 'put', private1_url, points_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    points_data = PointsSerializer(data.private_points2).data
+    points_data["name"] = "test"
+    points_data = JSONRenderer().render(points_data)
+    results = util_test_http_method(client, 'put', private2_url, points_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+
+def test_points_delete(client, data):
+    public_url = reverse('points-detail', kwargs={"pk": data.public_points.pk})
+    private1_url = reverse('points-detail', kwargs={"pk": data.private_points1.pk})
+    private2_url = reverse('points-detail', kwargs={"pk": data.private_points2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'delete', public_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+    results = util_test_http_method(client, 'delete', private1_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+    results = util_test_http_method(client, 'delete', private2_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+
+
+def test_points_list(client, data):
+    url = reverse('points-list')
+
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+    client.login(data.registered_user)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+    client.login(data.project_member_without_perms)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 5
+    assert response.status_code == 200
+
+    client.login(data.project_member_with_perms)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 5
+    assert response.status_code == 200
+
+    client.login(data.project_owner)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 5
+    assert response.status_code == 200
+
+
+def test_points_patch(client, data):
+    public_url = reverse('points-detail', kwargs={"pk": data.public_points.pk})
+    private1_url = reverse('points-detail', kwargs={"pk": data.private_points1.pk})
+    private2_url = reverse('points-detail', kwargs={"pk": data.private_points2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'patch', public_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private1_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private2_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+
+
 # def test_points_action_bulk_update_order(client, data):
 #     assert False
 #
