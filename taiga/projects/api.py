@@ -189,8 +189,10 @@ class RolesViewSet(ModelCrudViewSet):
             qs = qs.filter(Q(project__owner=self.request.user) |
                            Q(project__members=self.request.user) |
                            Q(project__is_private=False))
+            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['view_project']"], []), OR)
         else:
             qs = qs.filter(project__is_private=False)
+            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['view_project']"], []), OR)
 
         return qs.distinct()
 

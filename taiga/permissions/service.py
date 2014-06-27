@@ -26,6 +26,7 @@ def is_project_owner(user, obj):
         return True
 
     project = _get_object_project(obj)
+
     if project:
         return project.owner == user
     return False
