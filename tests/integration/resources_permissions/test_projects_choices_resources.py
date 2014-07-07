@@ -283,31 +283,31 @@ def test_points_list(client, data):
 
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 3
+    assert len(projects_data) == 2
     assert response.status_code == 200
 
     client.login(data.registered_user)
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 3
+    assert len(projects_data) == 2
     assert response.status_code == 200
 
     client.login(data.project_member_without_perms)
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 5
+    assert len(projects_data) == 3
     assert response.status_code == 200
 
     client.login(data.project_member_with_perms)
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 5
+    assert len(projects_data) == 3
     assert response.status_code == 200
 
     client.login(data.project_owner)
     response = client.get(url)
     projects_data = json.loads(response.content.decode('utf-8'))
-    assert len(projects_data) == 5
+    assert len(projects_data) == 3
     assert response.status_code == 200
 
 

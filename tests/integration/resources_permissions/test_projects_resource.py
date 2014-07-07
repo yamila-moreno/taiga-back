@@ -91,7 +91,7 @@ def test_project_retrieve(client, data):
 def test_project_update(client, data):
     url = reverse('projects-detail', kwargs={"pk": data.private_project2.pk})
 
-    project_data = ProjectDetailSerializer(data.private_project1).data
+    project_data = ProjectDetailSerializer(data.private_project2).data
     project_data["is_private"] = False
     project_data = JSONRenderer().render(project_data)
 
