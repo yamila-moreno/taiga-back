@@ -14,10 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from taiga.base.permissions import BasePermission
-
 from taiga.base.api.permissions import (ResourcePermission, HasProjectPerm,
-                                        IsAuthenticated, IsProjectOwner, AllowAny)
+                                        IsAuthenticated, IsProjectOwner,
+                                        AllowAny, IsSuperUser)
 
 
 class ProjectPermission(ResourcePermission):
@@ -121,6 +120,9 @@ class RolesPermission(ResourcePermission):
 
 # Project Templates
 
-class ProjectTemplatePermission(BasePermission):
-    # TODO: should be improved in permissions refactor
-    pass
+class ProjectTemplatePermission(ResourcePermission):
+    retrieve_perms = AllowAny()
+    create_perms = IsSuperUser()
+    update_perms = IsSuperUser()
+    destroy_perms = IsSuperUser()
+    list_perms = AllowAny()

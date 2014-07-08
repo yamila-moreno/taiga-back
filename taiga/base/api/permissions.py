@@ -161,6 +161,11 @@ class IsAuthenticated(PermissionComponent):
         return request.user and request.user.is_authenticated()
 
 
+class IsSuperUser(PermissionComponent):
+    def check_permissions(self, request, view, obj=None):
+        return request.user and request.user.is_authenticated() and request.user.is_superuser
+
+
 class HasProjectPerm(PermissionComponent):
     def __init__(self, perm, *components):
         self.project_perm = perm

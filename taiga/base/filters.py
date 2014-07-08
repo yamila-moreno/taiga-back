@@ -101,6 +101,22 @@ class CanViewProjectFilterBackend(FilterBackend):
         return qs.distinct()
 
 
+class CanViewProjectObjFilterBackend(FilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        qs = queryset
+
+        if request.user.is_authenticated():
+            qs = qs.filter(Q(owner=request.user) |
+                           Q(members=request.user) |
+                           Q(is_private=False))
+            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['view_project']"], []), OR)
+        else:
+            qs = qs.filter(is_private=False)
+            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['view_project']"], []), OR)
+
+        return qs.distinct()
+
+
 class IsProjectMemberFilterBackend(FilterBackend):
     def filter_queryset(self, request, queryset, view):
         queryset = super().filter_queryset(request, queryset, view)

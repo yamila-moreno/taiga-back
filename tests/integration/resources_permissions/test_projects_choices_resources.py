@@ -38,6 +38,7 @@ def data():
     m.project_member_without_perms = f.UserFactory.create()
     m.project_owner = f.UserFactory.create()
     m.other_user = f.UserFactory.create()
+    m.superuser = f.UserFactory.create(is_superuser=True)
 
     m.public_project = f.ProjectFactory(is_private=False,
                                         anon_permissions=['view_project'],
@@ -100,6 +101,8 @@ def data():
     m.public_severity = f.SeverityFactory(project=m.public_project)
     m.private_severity1 = f.SeverityFactory(project=m.private_project1)
     m.private_severity2 = f.SeverityFactory(project=m.private_project2)
+
+    m.project_template = m.public_project.creation_template
 
     return m
 
@@ -1372,6 +1375,7 @@ def test_severity_action_bulk_update_order(client, data):
     results = util_test_http_method(client, 'post', private2_url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
+
 def test_membership_retrieve(client, data):
     public_url = reverse('memberships-detail', kwargs={"pk": data.public_membership.pk})
     private1_url = reverse('memberships-detail', kwargs={"pk": data.private_membership1.pk})
@@ -1498,3 +1502,79 @@ def test_membership_patch(client, data):
     assert results == [401, 403, 403, 403, 200]
     results = util_test_http_method(client, 'patch', private2_url, '{"name": "Test"}', users)
     assert results == [401, 403, 403, 403, 200]
+
+
+def test_project_template_retrieve(client, data):
+    url = reverse('project-templates-detail', kwargs={"pk": data.project_template.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.superuser,
+    ]
+
+    results = util_test_http_method(client, 'get', url, None, users)
+    assert results == [200, 200, 200]
+
+
+def test_project_template_update(client, data):
+    url = reverse('project-templates-detail', kwargs={"pk": data.project_template.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.superuser,
+    ]
+
+    project_template_data = serializers.ProjectTemplateSerializer(data.project_template).data
+    project_template_data["default_owner_role"] = "test"
+    project_template_data = JSONRenderer().render(project_template_data)
+    results = util_test_http_method(client, 'put', url, project_template_data, users)
+    assert results == [401, 403, 200]
+
+
+def test_project_template_delete(client, data):
+    url = reverse('project-templates-detail', kwargs={"pk": data.project_template.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.superuser,
+    ]
+
+    results = util_test_http_method(client, 'delete', url, None, users)
+    assert results == [401, 403, 204]
+
+
+def test_project_template_list(client, data):
+    url = reverse('project-templates-list')
+
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 1
+    assert response.status_code == 200
+
+    client.login(data.registered_user)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 1
+    assert response.status_code == 200
+
+    client.login(data.superuser)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 1
+    assert response.status_code == 200
+
+
+def test_project_template_patch(client, data):
+    url = reverse('project-templates-detail', kwargs={"pk": data.project_template.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.superuser,
+    ]
+
+    results = util_test_http_method(client, 'patch', url, '{"name": "Test"}', users)
+    assert results == [401, 403, 200]

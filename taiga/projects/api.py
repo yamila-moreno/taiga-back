@@ -19,7 +19,6 @@ import uuid
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
-from django.db.models.sql.where import ExtraWhere, OR
 
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
@@ -52,21 +51,11 @@ class ProjectViewSet(ModelCrudViewSet):
     serializer_class = serializers.ProjectDetailSerializer
     list_serializer_class = serializers.ProjectSerializer
     permission_classes = (permissions.ProjectPermission, )
+    filter_backends = (filters.CanViewProjectObjFilterBackend,)
 
     def get_queryset(self):
         qs = models.Project.objects.all()
-        qs = attach_votescount_to_queryset(qs, as_field="stars_count")
-
-        if self.request.user.is_authenticated():
-            qs = qs.filter(Q(owner=self.request.user) |
-                           Q(members=self.request.user) |
-                           Q(is_private=False))
-            qs.query.where.add(ExtraWhere(["public_permissions @> ARRAY['view_project']"], []), OR)
-        else:
-            qs = qs.filter(is_private=False)
-            qs.query.where.add(ExtraWhere(["anon_permissions @> ARRAY['view_project']"], []), OR)
-
-        return qs.distinct()
+        return attach_votescount_to_queryset(qs, as_field="stars_count")
 
     @detail_route(methods=['get'])
     def stats(self, request, pk=None):
@@ -179,21 +168,8 @@ class RolesViewSet(ModelCrudViewSet):
     model = Role
     serializer_class = serializers.RoleSerializer
     permission_classes = (permissions.RolesPermission, )
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ('project',)
-
-    def get_queryset(self):
-        qs = self.model.objects.all()
-
-        if self.request.user.is_authenticated():
-            qs = qs.filter(Q(project__owner=self.request.user) |
-                           Q(project__members=self.request.user) |
-                           Q(project__is_private=False))
-            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['view_project']"], []), OR)
-        else:
-            qs = qs.filter(project__is_private=False)
-            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['view_project']"], []), OR)
-
-        return qs.distinct()
 
 
 # User Stories commin ViewSets
@@ -307,7 +283,7 @@ class IssueStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class ProjectTemplateViewSet(ModelCrudViewSet):
     model = models.ProjectTemplate
     serializer_class = serializers.ProjectTemplateSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.ProjectTemplatePermission)
+    permission_classes = (permissions.ProjectTemplatePermission,)
 
     @list_route(methods=["POST"])
     def create_from_project(self, request, **kwargs):

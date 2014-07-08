@@ -44,6 +44,7 @@ class ProjectTemplateFactory(Factory):
 
     name = "Template name"
     slug = settings.DEFAULT_PROJECT_TEMPLATE
+    description = factory.Sequence(lambda n: "Description {}".format(n))
 
     us_statuses = []
     points = []
