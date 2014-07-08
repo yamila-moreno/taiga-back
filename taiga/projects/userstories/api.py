@@ -42,13 +42,13 @@ from . import serializers
 from . import services
 
 
-class UserStoryViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin, ModelCrudViewSet):
+class UserStoryViewSet(ModelCrudViewSet, OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin):
     model = models.UserStory
     serializer_class = serializers.UserStoryNeighborsSerializer
     list_serializer_class = serializers.UserStorySerializer
-    permission_classes = (IsAuthenticated, permissions.UserStoryPermission)
+    permission_classes = (permissions.UserStoryPermission,)
 
-    filter_backends = (filters.IsProjectMemberFilterBackend, filters.TagsFilter)
+    filter_backends = (filters.CanViewUsFilterBackend, filters.TagsFilter)
     retrieve_exclude_filters = (filters.TagsFilter,)
     filter_fields = ['project', 'milestone', 'milestone__isnull', 'status', 'is_archived']
 
@@ -136,16 +136,3 @@ class UserStoryViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMi
             obj.owner = self.request.user
 
         super().pre_save(obj)
-
-    def pre_conditions_on_save(self, obj):
-        super().pre_conditions_on_save(obj)
-
-        if (obj.project.owner != self.request.user and
-                obj.project.memberships.filter(user=self.request.user).count() == 0):
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this user story"))
-
-        if obj.milestone and obj.milestone.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this user story"))
-
-        if obj.status and obj.status.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this user story"))

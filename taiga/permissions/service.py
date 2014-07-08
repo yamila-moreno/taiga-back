@@ -61,11 +61,7 @@ def get_user_project_permissions(user, project):
         return set(owner_permissions + members_permissions + public_permissions + anon_permissions)
     elif project.owner == user:
         owner_permissions = list(map(lambda perm: perm[0], OWNERS_PERMISSIONS))
-        if membership:
-            members_permissions = _get_membership_permissions(membership)
-        else:
-            members_permissions = list(map(lambda perm: perm[0], MEMBERS_PERMISSIONS))
-
+        members_permissions = list(map(lambda perm: perm[0], MEMBERS_PERMISSIONS))
         return set(project.anon_permissions + project.public_permissions + members_permissions + owner_permissions)
     elif membership:
         if membership.is_owner:

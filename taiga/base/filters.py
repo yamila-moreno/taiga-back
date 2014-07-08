@@ -85,7 +85,9 @@ class FilterBackend(OrderByFilterMixin,
     pass
 
 
-class CanViewProjectFilterBackend(FilterBackend):
+class PermissionBasedFilterBackend(FilterBackend):
+    permission = None
+
     def filter_queryset(self, request, queryset, view):
         qs = queryset
 
@@ -93,12 +95,20 @@ class CanViewProjectFilterBackend(FilterBackend):
             qs = qs.filter(Q(project__owner=request.user) |
                            Q(project__members=request.user) |
                            Q(project__is_private=False))
-            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['view_project']"], []), OR)
+            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['{}']".format(self.permission)], []), OR)
         else:
             qs = qs.filter(project__is_private=False)
-            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['view_project']"], []), OR)
+            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['{}']".format(self.permission)], []), OR)
 
         return qs.distinct()
+
+
+class CanViewProjectFilterBackend(PermissionBasedFilterBackend):
+    permission = "view_project"
+
+
+class CanViewUsFilterBackend(PermissionBasedFilterBackend):
+    permission = "view_us"
 
 
 class CanViewProjectObjFilterBackend(FilterBackend):

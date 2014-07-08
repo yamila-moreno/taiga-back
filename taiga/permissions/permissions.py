@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 ANON_PERMISSIONS = [
     ('view_project', _('View project')),
     ('view_milestones', _('View milestones')),
-    ('view_uss', _('View user stories')),
+    ('view_us', _('View user stories')),
     ('view_tasks', _('View tasks')),
     ('view_issues', _('View issues')),
     ('view_wiki_pages', _('View wiki pages')),
@@ -11,6 +11,7 @@ ANON_PERMISSIONS = [
 
 USER_PERMISSIONS = [
     ('view_project', _('View project')),
+    ('view_us', _('View user stories')),
     ('request_membership', _('Request membership')),
     ('add_us_to_project', _('Add user story to project')),
     ('add_comments_to_us', _('Add comments to user stories')),
