@@ -345,26 +345,26 @@ def test_points_action_bulk_update_order(client, data):
         data.project_owner
     ]
 
-    data = json.dumps({
+    post_data = json.dumps({
         "bulk_points": [(1,2)],
         "project": data.public_project.pk
     })
-    results = util_test_http_method(client, 'post', public_url, data, users)
-    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'post', public_url, post_data, users)
+    assert results == [401, 403, 403, 403, 204]
 
-    data = json.dumps({
+    post_data = json.dumps({
         "bulk_points": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = util_test_http_method(client, 'post', private1_url, data, users)
-    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'post', private1_url, post_data, users)
+    assert results == [401, 403, 403, 403, 204]
 
-    data = json.dumps({
+    post_data = json.dumps({
         "bulk_points": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = util_test_http_method(client, 'post', private2_url, data, users)
-    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'post', private2_url, post_data, users)
+    assert results == [401, 403, 403, 403, 204]
 
 
 # def test_user_story_status_retrieve(client, data):

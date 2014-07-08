@@ -32,7 +32,7 @@ from taiga.base import filters
 from taiga.base import exceptions as exc
 from taiga.base.decorators import list_route
 from taiga.base.decorators import detail_route
-from taiga.base.permissions import has_project_perm
+from taiga.permissions.service import user_has_perm
 from taiga.base.api import ModelCrudViewSet
 from taiga.base.api import ModelListViewSet
 from taiga.base.api.mixins import RetrieveModelMixin
@@ -222,10 +222,9 @@ class BulkUpdateOrderMixin(object):
 
         project = get_object_or_404(models.Project, id=project_id)
 
-        if request.user != project.owner and not has_project_perm(request.user, project, self.bulk_update_perm):
-            raise exc.PermissionDenied(_("You don't have permisions %s.") % self.bulk_update_perm)
+        self.check_permissions(request, 'bulk_update_order', project)
 
-        self.bulk_update_order(project, request.user, bulk_data)
+        self.__class__.bulk_update_order_action(project, request.user, bulk_data)
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -236,7 +235,7 @@ class PointsViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ('project',)
     bulk_update_param = "bulk_points"
     bulk_update_perm = "change_points"
-    bulk_update_order = services.bulk_update_points_order
+    bulk_update_order_action = services.bulk_update_points_order
 
     def get_queryset(self):
         qs = self.model.objects.all()
@@ -261,7 +260,7 @@ class UserStoryStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ('project',)
     bulk_update_param = "bulk_userstory_statuses"
     bulk_update_perm = "change_userstorystatus"
-    bulk_update_order = services.bulk_update_userstory_status_order
+    bulk_update_order_action = services.bulk_update_userstory_status_order
 
 
 class TaskStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
@@ -272,7 +271,7 @@ class TaskStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ("project",)
     bulk_update_param = "bulk_task_statuses"
     bulk_update_perm = "change_taskstatus"
-    bulk_update_order = services.bulk_update_task_status_order
+    bulk_update_order_action = services.bulk_update_task_status_order
 
 
 class SeverityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
@@ -283,7 +282,7 @@ class SeverityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ("project",)
     bulk_update_param = "bulk_severities"
     bulk_update_perm = "change_severity"
-    bulk_update_order = services.bulk_update_severity_order
+    bulk_update_order_action = services.bulk_update_severity_order
 
 
 class PriorityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
@@ -294,7 +293,7 @@ class PriorityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ("project",)
     bulk_update_param = "bulk_priorities"
     bulk_update_perm = "change_priority"
-    bulk_update_order = services.bulk_update_priority_order
+    bulk_update_order_action = services.bulk_update_priority_order
 
 
 class IssueTypeViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
@@ -305,7 +304,7 @@ class IssueTypeViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ("project",)
     bulk_update_param = "bulk_issue_types"
     bulk_update_perm = "change_issuetype"
-    bulk_update_order = services.bulk_update_issue_type_order
+    bulk_update_order_action = services.bulk_update_issue_type_order
 
 
 class IssueStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
@@ -316,7 +315,7 @@ class IssueStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     filter_fields = ("project",)
     bulk_update_param = "bulk_issue_statuses"
     bulk_update_perm = "change_issuestatus"
-    bulk_update_order = services.bulk_update_issue_status_order
+    bulk_update_order_action = services.bulk_update_issue_status_order
 
 
 class ProjectTemplateViewSet(ModelCrudViewSet):

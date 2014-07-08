@@ -52,6 +52,7 @@ class PointsPermission(ResourcePermission):
     update_perms = IsProjectOwner()
     destroy_perms = IsProjectOwner()
     list_perms = AllowAny()
+    bulk_update_order_perms = IsProjectOwner()
 
 
 class UserStoryStatusPermission(BasePermission):
