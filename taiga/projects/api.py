@@ -253,8 +253,8 @@ class UserStoryStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class TaskStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.TaskStatus
     serializer_class = serializers.TaskStatusSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.TaskStatusPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.TaskStatusPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_task_statuses"
     bulk_update_perm = "change_taskstatus"
@@ -264,8 +264,8 @@ class TaskStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class SeverityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Severity
     serializer_class = serializers.SeveritySerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.SeverityPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.SeverityPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_severities"
     bulk_update_perm = "change_severity"
@@ -275,8 +275,8 @@ class SeverityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class PriorityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Priority
     serializer_class = serializers.PrioritySerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.PriorityPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.PriorityPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_priorities"
     bulk_update_perm = "change_priority"
@@ -286,8 +286,8 @@ class PriorityViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class IssueTypeViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.IssueType
     serializer_class = serializers.IssueTypeSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.IssueTypePermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.IssueTypePermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_issue_types"
     bulk_update_perm = "change_issuetype"
@@ -297,8 +297,8 @@ class IssueTypeViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
 class IssueStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.IssueStatus
     serializer_class = serializers.IssueStatusSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.IssueStatusPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.IssueStatusPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ("project",)
     bulk_update_param = "bulk_issue_statuses"
     bulk_update_perm = "change_issuestatus"
