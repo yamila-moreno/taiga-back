@@ -232,31 +232,18 @@ class PointsViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.Points
     serializer_class = serializers.PointsSerializer
     permission_classes = (permissions.PointsPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ('project',)
     bulk_update_param = "bulk_points"
     bulk_update_perm = "change_points"
     bulk_update_order_action = services.bulk_update_points_order
 
-    def get_queryset(self):
-        qs = self.model.objects.all()
-
-        if self.request.user.is_authenticated():
-            qs = qs.filter(Q(project__owner=self.request.user) |
-                           Q(project__members=self.request.user) |
-                           Q(project__is_private=False))
-            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['view_project']"], []), OR)
-        else:
-            qs = qs.filter(project__is_private=False)
-            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['view_project']"], []), OR)
-
-        return qs.distinct()
-
 
 class UserStoryStatusViewSet(ModelCrudViewSet, BulkUpdateOrderMixin):
     model = models.UserStoryStatus
     serializer_class = serializers.UserStoryStatusSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.UserStoryStatusPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.UserStoryStatusPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
     filter_fields = ('project',)
     bulk_update_param = "bulk_userstory_statuses"
     bulk_update_perm = "change_userstorystatus"

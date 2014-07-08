@@ -16,6 +16,7 @@
 
 
 from django.db.models import Q
+from django.db.models.sql.where import ExtraWhere, OR
 
 from rest_framework import filters
 
@@ -82,6 +83,22 @@ class FilterBackend(OrderByFilterMixin,
     Default filter backend.
     """
     pass
+
+
+class CanViewProjectFilterBackend(FilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        qs = queryset
+
+        if request.user.is_authenticated():
+            qs = qs.filter(Q(project__owner=request.user) |
+                           Q(project__members=request.user) |
+                           Q(project__is_private=False))
+            qs.query.where.add(ExtraWhere(["projects_project.public_permissions @> ARRAY['view_project']"], []), OR)
+        else:
+            qs = qs.filter(project__is_private=False)
+            qs.query.where.add(ExtraWhere(["projects_project.anon_permissions @> ARRAY['view_project']"], []), OR)
+
+        return qs.distinct()
 
 
 class IsProjectMemberFilterBackend(FilterBackend):

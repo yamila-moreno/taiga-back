@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.renderers import JSONRenderer
 
-from taiga.projects.serializers import ProjectSerializer, RoleSerializer, PointsSerializer
+from taiga.projects.serializers import ProjectSerializer, RoleSerializer, PointsSerializer, UserStoryStatusSerializer
 from taiga.permissions.permissions import MEMBERS_PERMISSIONS
 
 from tests import factories as f
@@ -24,6 +24,8 @@ def util_test_http_method(client, method, url, data, users):
             response = getattr(client, method)(url, data, content_type="application/json")
         else:
             response = getattr(client, method)(url)
+        if response.status_code == 400:
+            print(response.content)
         results.append(response.status_code)
     return results
 
@@ -72,6 +74,10 @@ def data():
     m.public_points = f.PointsFactory(project=m.public_project)
     m.private_points1 = f.PointsFactory(project=m.private_project1)
     m.private_points2 = f.PointsFactory(project=m.private_project2)
+
+    m.public_user_story_status = f.UserStoryStatusFactory(project=m.public_project)
+    m.private_user_story_status1 = f.UserStoryStatusFactory(project=m.private_project1)
+    m.private_user_story_status2 = f.UserStoryStatusFactory(project=m.private_project2)
 
     return m
 
@@ -361,6 +367,169 @@ def test_points_action_bulk_update_order(client, data):
 
     post_data = json.dumps({
         "bulk_points": [(1,2)],
+        "project": data.private_project2.pk
+    })
+    results = util_test_http_method(client, 'post', private2_url, post_data, users)
+    assert results == [401, 403, 403, 403, 204]
+
+
+def test_user_story_status_retrieve(client, data):
+    public_url = reverse('userstory-statuses-detail', kwargs={"pk": data.public_user_story_status.pk})
+    private1_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status1.pk})
+    private2_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'get', public_url, None, users)
+    assert results == [200, 200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
+    assert results == [401, 403, 403, 200, 200]
+
+
+def test_user_story_status_update(client, data):
+    public_url = reverse('userstory-statuses-detail', kwargs={"pk": data.public_user_story_status.pk})
+    private1_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status1.pk})
+    private2_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    user_story_status_data = UserStoryStatusSerializer(data.public_user_story_status).data
+    user_story_status_data["name"] = "test"
+    user_story_status_data = JSONRenderer().render(user_story_status_data)
+    results = util_test_http_method(client, 'put', public_url, user_story_status_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    user_story_status_data = UserStoryStatusSerializer(data.private_user_story_status1).data
+    user_story_status_data["name"] = "test"
+    user_story_status_data = JSONRenderer().render(user_story_status_data)
+    results = util_test_http_method(client, 'put', private1_url, user_story_status_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    user_story_status_data = UserStoryStatusSerializer(data.private_user_story_status2).data
+    user_story_status_data["name"] = "test"
+    user_story_status_data = JSONRenderer().render(user_story_status_data)
+    results = util_test_http_method(client, 'put', private2_url, user_story_status_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+
+def test_user_story_status_delete(client, data):
+    public_url = reverse('userstory-statuses-detail', kwargs={"pk": data.public_user_story_status.pk})
+    private1_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status1.pk})
+    private2_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'delete', public_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+    results = util_test_http_method(client, 'delete', private1_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+    results = util_test_http_method(client, 'delete', private2_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+
+
+def test_user_story_status_list(client, data):
+    url = reverse('userstory-statuses-list')
+
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 2
+    assert response.status_code == 200
+
+    client.login(data.registered_user)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 2
+    assert response.status_code == 200
+
+    client.login(data.project_member_without_perms)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+    client.login(data.project_member_with_perms)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+    client.login(data.project_owner)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+
+def test_user_story_status_patch(client, data):
+    public_url = reverse('userstory-statuses-detail', kwargs={"pk": data.public_user_story_status.pk})
+    private1_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status1.pk})
+    private2_url = reverse('userstory-statuses-detail', kwargs={"pk": data.private_user_story_status2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'patch', public_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private1_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private2_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+
+
+def test_user_story_status_action_bulk_update_order(client, data):
+    public_url = reverse('userstory-statuses-bulk-update-order')
+    private1_url = reverse('userstory-statuses-bulk-update-order')
+    private2_url = reverse('userstory-statuses-bulk-update-order')
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    post_data = json.dumps({
+        "bulk_userstory_statuses": [(1,2)],
+        "project": data.public_project.pk
+    })
+    results = util_test_http_method(client, 'post', public_url, post_data, users)
+    assert results == [401, 403, 403, 403, 204]
+
+    post_data = json.dumps({
+        "bulk_userstory_statuses": [(1,2)],
+        "project": data.private_project1.pk
+    })
+    results = util_test_http_method(client, 'post', private1_url, post_data, users)
+    assert results == [401, 403, 403, 403, 204]
+
+    post_data = json.dumps({
+        "bulk_userstory_statuses": [(1,2)],
         "project": data.private_project2.pk
     })
     results = util_test_http_method(client, 'post', private2_url, post_data, users)

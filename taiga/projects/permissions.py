@@ -55,14 +55,13 @@ class PointsPermission(ResourcePermission):
     bulk_update_order_perms = IsProjectOwner()
 
 
-class UserStoryStatusPermission(BasePermission):
-    get_permission = "view_userstorystatus"
-    post_permission = "add_userstorystatus"
-    put_permission = "change_userstorystatus"
-    patch_permission = "change_userstorystatus"
-    delete_permission = "delete_userstorystatus"
-    safe_methods = ["HEAD", "OPTIONS"]
-    path_to_project =  ["project"]
+class UserStoryStatusPermission(ResourcePermission):
+    retrieve_perms = HasProjectPerm('view_project')
+    create_perms = IsProjectOwner()
+    update_perms = IsProjectOwner()
+    destroy_perms = IsProjectOwner()
+    list_perms = AllowAny()
+    bulk_update_order_perms = IsProjectOwner()
 
 
 # Tasks

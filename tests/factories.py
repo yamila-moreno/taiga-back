@@ -193,10 +193,10 @@ class IssueStatusFactory(Factory):
     project = factory.SubFactory("tests.factories.ProjectFactory")
 
 
-class TaskStatusFactory(Factory):
-    FACTORY_FOR = get_model("projects", "TaskStatus")
+class UserStoryStatusFactory(Factory):
+    FACTORY_FOR = get_model("projects", "UserStoryStatus")
 
-    name = factory.Sequence(lambda n: "Issue Status {}".format(n))
+    name = factory.Sequence(lambda n: "User Story Status {}".format(n))
     project = factory.SubFactory("tests.factories.ProjectFactory")
 
 
