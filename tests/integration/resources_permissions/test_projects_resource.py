@@ -7,24 +7,11 @@ from taiga.projects.serializers import ProjectDetailSerializer
 from taiga.permissions.permissions import MEMBERS_PERMISSIONS
 
 from tests import factories as f
+from tests.utils import helper_test_http_method
 
 import json
 
 pytestmark = pytest.mark.django_db
-
-def util_test_http_method(client, method, url, data, users):
-    results = []
-    for user in users:
-        if user is None:
-            client.logout()
-        else:
-            client.login(user)
-        if data:
-            response = getattr(client, method)(url, data, content_type="application/json")
-        else:
-            response = getattr(client, method)(url)
-        results.append(response.status_code)
-    return results
 
 
 @pytest.fixture
@@ -80,11 +67,11 @@ def test_project_retrieve(client, data):
         data.project_owner
     ]
 
-    results = util_test_http_method(client, 'get', public_url, None, users)
+    results = helper_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private1_url, None, users)
+    results = helper_test_http_method(client, 'get', private1_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private2_url, None, users)
+    results = helper_test_http_method(client, 'get', private2_url, None, users)
     assert results == [401, 403, 200, 200]
 
 
@@ -102,7 +89,7 @@ def test_project_update(client, data):
         data.project_owner
     ]
 
-    results = util_test_http_method(client, 'put', url, project_data, users)
+    results = helper_test_http_method(client, 'put', url, project_data, users)
     assert results == [401, 403, 403, 200]
 
 
@@ -115,7 +102,7 @@ def test_project_delete(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'delete', url, None, users)
+    results = helper_test_http_method(client, 'delete', url, None, users)
     assert results == [401, 403, 403, 204]
 
 
@@ -159,7 +146,7 @@ def test_project_patch(client, data):
         data.project_owner
     ]
     data = json.dumps({"is_private": False})
-    results = util_test_http_method(client, 'patch', url, data, users)
+    results = helper_test_http_method(client, 'patch', url, data, users)
     assert results == [401, 403, 403, 200]
 
 
@@ -174,11 +161,11 @@ def test_project_action_stats(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'get', public_url, None, users)
+    results = helper_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private1_url, None, users)
+    results = helper_test_http_method(client, 'get', private1_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private2_url, None, users)
+    results = helper_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
@@ -193,11 +180,11 @@ def test_project_action_star(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'post', public_url, None, users)
+    results = helper_test_http_method(client, 'post', public_url, None, users)
     assert results == [401, 200, 200, 200]
-    results = util_test_http_method(client, 'post', private1_url, None, users)
+    results = helper_test_http_method(client, 'post', private1_url, None, users)
     assert results == [401, 200, 200, 200]
-    results = util_test_http_method(client, 'post', private2_url, None, users)
+    results = helper_test_http_method(client, 'post', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
@@ -212,11 +199,11 @@ def test_project_action_unstar(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'post', public_url, None, users)
+    results = helper_test_http_method(client, 'post', public_url, None, users)
     assert results == [401, 200, 200, 200]
-    results = util_test_http_method(client, 'post', private1_url, None, users)
+    results = helper_test_http_method(client, 'post', private1_url, None, users)
     assert results == [401, 200, 200, 200]
-    results = util_test_http_method(client, 'post', private2_url, None, users)
+    results = helper_test_http_method(client, 'post', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
@@ -231,11 +218,11 @@ def test_project_action_issues_stats(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'get', public_url, None, users)
+    results = helper_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private1_url, None, users)
+    results = helper_test_http_method(client, 'get', private1_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private2_url, None, users)
+    results = helper_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
@@ -250,11 +237,11 @@ def test_project_action_issues_filters_data(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'get', public_url, None, users)
+    results = helper_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private1_url, None, users)
+    results = helper_test_http_method(client, 'get', private1_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private2_url, None, users)
+    results = helper_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 
@@ -269,11 +256,11 @@ def test_project_action_tags(client, data):
         data.project_member_with_perms,
         data.project_owner
     ]
-    results = util_test_http_method(client, 'get', public_url, None, users)
+    results = helper_test_http_method(client, 'get', public_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private1_url, None, users)
+    results = helper_test_http_method(client, 'get', private1_url, None, users)
     assert results == [200, 200, 200, 200]
-    results = util_test_http_method(client, 'get', private2_url, None, users)
+    results = helper_test_http_method(client, 'get', private2_url, None, users)
     assert results == [404, 404, 200, 200]
 
 

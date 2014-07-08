@@ -86,3 +86,20 @@ class SettingsTestCase(object):
     def teardown_class(cls):
         override_settings(cls.ORIGINAL_SETTINGS)
         cls.OVERRIDE_SETTINGS.clear()
+
+
+def helper_test_http_method(client, method, url, data, users):
+    results = []
+    for user in users:
+        if user is None:
+            client.logout()
+        else:
+            client.login(user)
+        if data:
+            response = getattr(client, method)(url, data, content_type="application/json")
+        else:
+            response = getattr(client, method)(url)
+        if response.status_code == 400:
+            print(response.content)
+        results.append(response.status_code)
+    return results
