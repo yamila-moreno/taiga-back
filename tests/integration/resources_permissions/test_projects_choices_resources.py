@@ -332,10 +332,41 @@ def test_points_patch(client, data):
     assert results == [401, 403, 403, 403, 200]
 
 
-# def test_points_action_bulk_update_order(client, data):
-#     assert False
-#
-#
+def test_points_action_bulk_update_order(client, data):
+    public_url = reverse('points-bulk-update-order')
+    private1_url = reverse('points-bulk-update-order')
+    private2_url = reverse('points-bulk-update-order')
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    data = json.dumps({
+        "bulk_points": [(1,2)],
+        "project": data.public_project.pk
+    })
+    results = util_test_http_method(client, 'post', public_url, data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    data = json.dumps({
+        "bulk_points": [(1,2)],
+        "project": data.private_project1.pk
+    })
+    results = util_test_http_method(client, 'post', private1_url, data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    data = json.dumps({
+        "bulk_points": [(1,2)],
+        "project": data.private_project2.pk
+    })
+    results = util_test_http_method(client, 'post', private2_url, data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+
 # def test_user_story_status_retrieve(client, data):
 #     assert False
 #
