@@ -54,22 +54,26 @@ def data():
 
     f.RoleFactory(project=m.public_project)
 
-    m.membership = f.MembershipFactory(project=m.private_project1,
-                                       user=m.project_member_with_perms,
-                                       role__project=m.private_project1,
-                                       role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
-    m.membership = f.MembershipFactory(project=m.private_project1,
-                                       user=m.project_member_without_perms,
-                                       role__project=m.private_project1,
-                                       role__permissions=[])
-    m.membership = f.MembershipFactory(project=m.private_project2,
-                                       user=m.project_member_with_perms,
-                                       role__project=m.private_project2,
-                                       role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
-    m.membership = f.MembershipFactory(project=m.private_project2,
-                                       user=m.project_member_without_perms,
-                                       role__project=m.private_project2,
-                                       role__permissions=[])
+    m.public_membership = f.MembershipFactory(project=m.public_project,
+                                          user=m.project_member_with_perms,
+                                          role__project=m.private_project1,
+                                          role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
+    m.private_membership1 = f.MembershipFactory(project=m.private_project1,
+                                                user=m.project_member_with_perms,
+                                                role__project=m.private_project1,
+                                                role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
+    f.MembershipFactory(project=m.private_project1,
+                        user=m.project_member_without_perms,
+                        role__project=m.private_project1,
+                        role__permissions=[])
+    m.private_membership2 = f.MembershipFactory(project=m.private_project2,
+                                                user=m.project_member_with_perms,
+                                                role__project=m.private_project2,
+                                                role__permissions=list(map(lambda x: x[0], MEMBERS_PERMISSIONS)))
+    f.MembershipFactory(project=m.private_project2,
+                        user=m.project_member_without_perms,
+                        role__project=m.private_project2,
+                        role__permissions=[])
 
     m.public_points = f.PointsFactory(project=m.public_project)
     m.private_points1 = f.PointsFactory(project=m.private_project1)
@@ -1079,19 +1083,19 @@ def test_priority_update(client, data):
         data.project_owner
     ]
 
-    priority_data = serializers.SeveritySerializer(data.public_priority).data
+    priority_data = serializers.PrioritySerializer(data.public_priority).data
     priority_data["name"] = "test"
     priority_data = JSONRenderer().render(priority_data)
     results = util_test_http_method(client, 'put', public_url, priority_data, users)
     assert results == [401, 403, 403, 403, 200]
 
-    priority_data = serializers.SeveritySerializer(data.private_priority1).data
+    priority_data = serializers.PrioritySerializer(data.private_priority1).data
     priority_data["name"] = "test"
     priority_data = JSONRenderer().render(priority_data)
     results = util_test_http_method(client, 'put', private1_url, priority_data, users)
     assert results == [401, 403, 403, 403, 200]
 
-    priority_data = serializers.SeveritySerializer(data.private_priority2).data
+    priority_data = serializers.PrioritySerializer(data.private_priority2).data
     priority_data["name"] = "test"
     priority_data = JSONRenderer().render(priority_data)
     results = util_test_http_method(client, 'put', private2_url, priority_data, users)
@@ -1242,19 +1246,19 @@ def test_severity_update(client, data):
         data.project_owner
     ]
 
-    severity_data = serializers.PrioritySerializer(data.public_severity).data
+    severity_data = serializers.SeveritySerializer(data.public_severity).data
     severity_data["name"] = "test"
     severity_data = JSONRenderer().render(severity_data)
     results = util_test_http_method(client, 'put', public_url, severity_data, users)
     assert results == [401, 403, 403, 403, 200]
 
-    severity_data = serializers.PrioritySerializer(data.private_severity1).data
+    severity_data = serializers.SeveritySerializer(data.private_severity1).data
     severity_data["name"] = "test"
     severity_data = JSONRenderer().render(severity_data)
     results = util_test_http_method(client, 'put', private1_url, severity_data, users)
     assert results == [401, 403, 403, 403, 200]
 
-    severity_data = serializers.PrioritySerializer(data.private_severity2).data
+    severity_data = serializers.SeveritySerializer(data.private_severity2).data
     severity_data["name"] = "test"
     severity_data = JSONRenderer().render(severity_data)
     results = util_test_http_method(client, 'put', private2_url, severity_data, users)
@@ -1369,3 +1373,130 @@ def test_severity_action_bulk_update_order(client, data):
     })
     results = util_test_http_method(client, 'post', private2_url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
+
+def test_membership_retrieve(client, data):
+    public_url = reverse('memberships-detail', kwargs={"pk": data.public_membership.pk})
+    private1_url = reverse('memberships-detail', kwargs={"pk": data.private_membership1.pk})
+    private2_url = reverse('memberships-detail', kwargs={"pk": data.private_membership2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'get', public_url, None, users)
+    assert results == [200, 200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private1_url, None, users)
+    assert results == [200, 200, 200, 200, 200]
+    results = util_test_http_method(client, 'get', private2_url, None, users)
+    assert results == [401, 403, 403, 200, 200]
+
+
+def test_membership_update(client, data):
+    public_url = reverse('memberships-detail', kwargs={"pk": data.public_membership.pk})
+    private1_url = reverse('memberships-detail', kwargs={"pk": data.private_membership1.pk})
+    private2_url = reverse('memberships-detail', kwargs={"pk": data.private_membership2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    membership_data = serializers.MembershipSerializer(data.public_membership).data
+    membership_data["token"] = "test"
+    membership_data = JSONRenderer().render(membership_data)
+    results = util_test_http_method(client, 'put', public_url, membership_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    membership_data = serializers.MembershipSerializer(data.private_membership1).data
+    membership_data["token"] = "test"
+    membership_data = JSONRenderer().render(membership_data)
+    results = util_test_http_method(client, 'put', private1_url, membership_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+    membership_data = serializers.MembershipSerializer(data.private_membership2).data
+    membership_data["token"] = "test"
+    membership_data = JSONRenderer().render(membership_data)
+    results = util_test_http_method(client, 'put', private2_url, membership_data, users)
+    assert results == [401, 403, 403, 403, 200]
+
+
+def test_membership_delete(client, data):
+    public_url = reverse('memberships-detail', kwargs={"pk": data.public_membership.pk})
+    private1_url = reverse('memberships-detail', kwargs={"pk": data.private_membership1.pk})
+    private2_url = reverse('memberships-detail', kwargs={"pk": data.private_membership2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'delete', public_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+    results = util_test_http_method(client, 'delete', private1_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+    results = util_test_http_method(client, 'delete', private2_url, None, users)
+    assert results == [401, 403, 403, 403, 204]
+
+
+def test_membership_list(client, data):
+    url = reverse('memberships-list')
+
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+    client.login(data.registered_user)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 3
+    assert response.status_code == 200
+
+    client.login(data.project_member_without_perms)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 5
+    assert response.status_code == 200
+
+    client.login(data.project_member_with_perms)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 5
+    assert response.status_code == 200
+
+    client.login(data.project_owner)
+    response = client.get(url)
+    projects_data = json.loads(response.content.decode('utf-8'))
+    assert len(projects_data) == 5
+    assert response.status_code == 200
+
+
+def test_membership_patch(client, data):
+    public_url = reverse('memberships-detail', kwargs={"pk": data.public_membership.pk})
+    private1_url = reverse('memberships-detail', kwargs={"pk": data.private_membership1.pk})
+    private2_url = reverse('memberships-detail', kwargs={"pk": data.private_membership2.pk})
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    results = util_test_http_method(client, 'patch', public_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private1_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]
+    results = util_test_http_method(client, 'patch', private2_url, '{"name": "Test"}', users)
+    assert results == [401, 403, 403, 403, 200]

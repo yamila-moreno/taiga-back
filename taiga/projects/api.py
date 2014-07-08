@@ -32,9 +32,7 @@ from taiga.base import filters
 from taiga.base import exceptions as exc
 from taiga.base.decorators import list_route
 from taiga.base.decorators import detail_route
-from taiga.permissions.service import user_has_perm
 from taiga.base.api import ModelCrudViewSet
-from taiga.base.api import ModelListViewSet
 from taiga.base.api.mixins import RetrieveModelMixin
 from taiga.base.api.permissions import IsAuthenticatedPermission, AllowAnyPermission
 from taiga.base.utils.slug import slugify_uniquely
@@ -122,7 +120,8 @@ class ProjectViewSet(ModelCrudViewSet):
 class MembershipViewSet(ModelCrudViewSet):
     model = models.Membership
     serializer_class = serializers.MembershipSerializer
-    permission_classes = (IsAuthenticatedPermission, permissions.MembershipPermission)
+    permission_classes = (permissions.MembershipPermission,)
+    filter_backends = (filters.CanViewProjectFilterBackend,)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)

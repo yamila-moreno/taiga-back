@@ -34,14 +34,12 @@ class ProjectPermission(ResourcePermission):
     tags_perms = AllowAny()
 
 
-class MembershipPermission(BasePermission):
-    get_permission = "view_membership"
-    post_permission = "add_membership"
-    put_permission = "change_membership"
-    patch_permission = "change_membership"
-    delete_permission = "delete_membership"
-    safe_methods = ["HEAD", "OPTIONS"]
-    path_to_project =  ["project"]
+class MembershipPermission(ResourcePermission):
+    retrieve_perms = HasProjectPerm('view_project')
+    create_perms = IsProjectOwner()
+    update_perms = IsProjectOwner()
+    destroy_perms = IsProjectOwner()
+    list_perms = AllowAny()
 
 
 # User Stories
