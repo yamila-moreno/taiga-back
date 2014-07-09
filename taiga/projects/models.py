@@ -44,24 +44,12 @@ VIDEOCONFERENCES_CHOICES = (
 )
 
 class Membership(models.Model):
-    # This model stores all project memberships. Also
-    # stores invitations to memberships that does not have
-    # assigned user.
-
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, default=None,
                              related_name="memberships")
     project = models.ForeignKey("Project", null=False, blank=False,
                                 related_name="memberships")
     role = models.ForeignKey("users.Role", null=False, blank=False,
                              related_name="memberships")
-
-    # Invitation metadata
-    email = models.EmailField(max_length=255, default=None, null=True, blank=True,
-                              verbose_name=_("email"))
-    created_at = models.DateTimeField(auto_now_add=True, default=timezone.now,
-                                      verbose_name=_("creado el"))
-    token = models.CharField(max_length=60, blank=True, null=True, default=None,
-                             verbose_name=_("token"))
 
     def clean(self):
         # TODO: Review and do it more robust

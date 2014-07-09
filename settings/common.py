@@ -182,6 +182,7 @@ INSTALLED_APPS = [
     "taiga.projects.history",
     "taiga.projects.notifications",
     "taiga.projects.votes",
+    "taiga.projects.invitations",
     "taiga.searches",
     "taiga.timeline",
     "taiga.mdrender",
