@@ -43,8 +43,8 @@ from . import services
 class TaskViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin, ModelCrudViewSet):
     model = models.Task
     serializer_class = serializers.TaskSerializer
-    permission_classes = (IsAuthenticated, permissions.TaskPermission)
-    filter_backends = (filters.IsProjectMemberFilterBackend,)
+    permission_classes = (permissions.TaskPermission,)
+    filter_backends = (filters.CanViewTasksFilterBackend,)
     filter_fields = ["user_story", "milestone", "project"]
 
     def pre_save(self, obj):

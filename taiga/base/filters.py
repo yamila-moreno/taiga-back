@@ -115,6 +115,10 @@ class CanViewIssuesFilterBackend(PermissionBasedFilterBackend):
     permission = "view_issues"
 
 
+class CanViewTasksFilterBackend(PermissionBasedFilterBackend):
+    permission = "view_tasks"
+
+
 class CanViewProjectObjFilterBackend(FilterBackend):
     def filter_queryset(self, request, queryset, view):
         qs = queryset

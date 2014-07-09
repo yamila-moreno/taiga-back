@@ -14,6 +14,7 @@ USER_PERMISSIONS = [
     ('view_us', _('View user stories')),
     ('view_issues', _('View issues')),
     ('vote_issues', _('Vote issues')),
+    ('view_tasks', _('View tasks')),
     ('request_membership', _('Request membership')),
     ('add_us_to_project', _('Add user story to project')),
     ('add_comments_to_us', _('Add comments to user stories')),
@@ -40,7 +41,7 @@ MEMBERS_PERMISSIONS = [
     ('modify_us', _('Modify user story')),
     ('delete_us', _('Delete user story')),
     # Task permissions
-    ('view_task', _('View task')),
+    ('view_tasks', _('View tasks')),
     ('add_task', _('Add task')),
     ('modify_task', _('Modify task')),
     ('delete_task', _('Delete task')),
