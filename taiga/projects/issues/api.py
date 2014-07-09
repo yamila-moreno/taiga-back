@@ -150,15 +150,21 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
         if obj.type and obj.type.project != obj.project:
             raise exc.PermissionDenied(_("You don't have permissions to set this type to this issue."))
 
-    @detail_route(methods=['post'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['post'])
     def upvote(self, request, pk=None):
-        issue = self.get_object()
+        issue = get_object_or_404(models.Issue, pk=pk)
+
+        self.check_permissions(request, 'upvote', issue)
+
         votes_service.add_vote(issue, user=request.user)
         return Response(status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['post'])
     def downvote(self, request, pk=None):
-        issue = self.get_object()
+        issue = get_object_or_404(models.Issue, pk=pk)
+
+        self.check_permissions(request, 'downvote', issue)
+
         votes_service.remove_vote(issue, user=request.user)
         return Response(status=status.HTTP_200_OK)
 
