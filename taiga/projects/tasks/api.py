@@ -57,10 +57,6 @@ class TaskViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin, 
     def pre_conditions_on_save(self, obj):
         super().pre_conditions_on_save(obj)
 
-        if (obj.project.owner != self.request.user and
-                obj.project.memberships.filter(user=self.request.user).count() == 0):
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this task."))
-
         if obj.milestone and obj.milestone.project != obj.project:
             raise exc.PermissionDenied(_("You don't have permissions for add/modify this task."))
 
@@ -87,8 +83,7 @@ class TaskViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin, 
         project = get_object_or_404(Project, id=project_id)
         user_story = get_object_or_404(UserStory, id=us_id)
 
-        if request.user != project.owner and not has_project_perm(request.user, project, 'add_task'):
-            raise exc.PermissionDenied(_("You don't have permisions to create tasks."))
+        self.check_permissions(request, 'bulk_create', project)
 
         service = services.TasksService()
         tasks = service.bulk_insert(project, request.user, user_story, bulk_tasks,

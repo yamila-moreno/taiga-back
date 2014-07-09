@@ -68,13 +68,23 @@ def data():
 
     m.public_task = f.TaskFactory(project=m.public_project,
                                   status__project=m.public_project,
-                                  milestone__project=m.public_project)
+                                  milestone__project=m.public_project,
+                                  user_story__project=m.public_project)
     m.private_task1 = f.TaskFactory(project=m.private_project1,
                                     status__project=m.private_project1,
-                                    milestone__project=m.private_project1)
+                                    milestone__project=m.private_project1,
+                                    user_story__project=m.private_project1)
     m.private_task2 = f.TaskFactory(project=m.private_project2,
                                     status__project=m.private_project2,
-                                    milestone__project=m.private_project2)
+                                    milestone__project=m.private_project2,
+                                    user_story__project=m.private_project2)
+
+    m.public_project.default_task_status = m.public_task.status
+    m.public_project.save()
+    m.private_project1.default_task_status = m.private_task1.status
+    m.private_project1.save()
+    m.private_project2.default_task_status = m.private_task2.status
+    m.private_project2.save()
 
     return m
 
@@ -243,4 +253,39 @@ def test_task_patch(client, data):
 
     patch_data = json.dumps({"subject": "test", "version": data.private_task2.version})
     results = helper_test_http_method(client, 'patch', private_url2, patch_data, users)
+    assert results == [401, 403, 403, 200, 200]
+
+def test_task_action_bulk_create(client, data):
+    url = reverse('tasks-bulk-create')
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    bulk_data = json.dumps({
+        "bulkTasks": "test1\ntest2",
+        "usId": data.public_task.user_story.pk,
+        "projectId": data.public_task.project.pk,
+    })
+    results = helper_test_http_method(client, 'post', url, bulk_data, users)
+    assert results == [401, 403, 403, 200, 200]
+
+    bulk_data = json.dumps({
+        "bulkTasks": "test1\ntest2",
+        "usId": data.private_task1.user_story.pk,
+        "projectId": data.private_task1.project.pk,
+    })
+    results = helper_test_http_method(client, 'post', url, bulk_data, users)
+    assert results == [401, 403, 403, 200, 200]
+
+    bulk_data = json.dumps({
+        "bulkTasks": "test1\ntest2",
+        "usId": data.private_task2.user_story.pk,
+        "projectId": data.private_task2.project.pk,
+    })
+    results = helper_test_http_method(client, 'post', url, bulk_data, users)
     assert results == [401, 403, 403, 200, 200]
