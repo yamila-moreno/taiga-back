@@ -53,4 +53,6 @@ class UserStoriesService(object):
         for usid, usorder in data:
             cursor.execute("EXECUTE bulk_update_order (%s, %s, %s);",
                            (usorder, usid, project.id))
+
+        cursor.execute("DEALLOCATE bulk_update_order")
         cursor.close()

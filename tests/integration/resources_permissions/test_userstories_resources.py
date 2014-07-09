@@ -189,6 +189,30 @@ def test_user_story_list(client, data):
     assert response.status_code == 200
 
 
+def test_user_story_create(client, data):
+    url = reverse('userstories-list')
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    create_data = json.dumps({"subject": "test", "ref": 1, "project": data.public_project.pk})
+    results = helper_test_http_method(client, 'post', url, create_data, users)
+    assert results == [401, 201, 201, 201, 201]
+
+    create_data = json.dumps({"subject": "test", "ref": 2, "project": data.private_project1.pk})
+    results = helper_test_http_method(client, 'post', url, create_data, users)
+    assert results == [401, 201, 201, 201, 201]
+
+    create_data = json.dumps({"subject": "test", "ref": 3, "project": data.private_project2.pk})
+    results = helper_test_http_method(client, 'post', url, create_data, users)
+    assert results == [401, 403, 403, 201, 201]
+
+
 def test_user_story_patch(client, data):
     public_url = reverse('userstories-detail', kwargs={"pk": data.public_user_story.pk})
     private_url1 = reverse('userstories-detail', kwargs={"pk": data.private_user_story1.pk})
@@ -210,3 +234,59 @@ def test_user_story_patch(client, data):
     assert results == [401, 403, 403, 200, 200]
     results = helper_test_http_method(client, 'patch', private_url2, patch_data, users)
     assert results == [401, 403, 403, 200, 200]
+
+def test_user_story_action_bulk_create(client, data):
+    url = reverse('userstories-bulk-create')
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    bulk_data = json.dumps({"bulkStories": "test1\ntest2", "projectId": data.public_user_story.project.pk})
+    results = helper_test_http_method(client, 'post', url, bulk_data, users)
+    assert results == [401, 200, 200, 200, 200]
+
+    bulk_data = json.dumps({"bulkStories": "test1\ntest2", "projectId": data.private_user_story1.project.pk})
+    results = helper_test_http_method(client, 'post', url, bulk_data, users)
+    assert results == [401, 200, 200, 200, 200]
+
+    bulk_data = json.dumps({"bulkStories": "test1\ntest2", "projectId": data.private_user_story2.project.pk})
+    results = helper_test_http_method(client, 'post', url, bulk_data, users)
+    assert results == [401, 403, 403, 200, 200]
+
+
+def test_user_story_action_bulk_update_order(client, data):
+    url = reverse('userstories-bulk-update-order')
+
+    users = [
+        None,
+        data.registered_user,
+        data.project_member_without_perms,
+        data.project_member_with_perms,
+        data.project_owner
+    ]
+
+    post_data = json.dumps({
+        "bulkStories": [(1,2)],
+        "projectId": data.public_project.pk
+    })
+    results = helper_test_http_method(client, 'post', url, post_data, users)
+    assert results == [401, 403, 403, 204, 204]
+
+    post_data = json.dumps({
+        "bulkStories": [(1,2)],
+        "projectId": data.private_project1.pk
+    })
+    results = helper_test_http_method(client, 'post', url, post_data, users)
+    assert results == [401, 403, 403, 204, 204]
+
+    post_data = json.dumps({
+        "bulkStories": [(1,2)],
+        "projectId": data.private_project2.pk
+    })
+    results = helper_test_http_method(client, 'post', url, post_data, users)
+    assert results == [401, 403, 403, 204, 204]

@@ -348,9 +348,7 @@ def test_points_patch(client, data):
 
 
 def test_points_action_bulk_update_order(client, data):
-    public_url = reverse('points-bulk-update-order')
-    private1_url = reverse('points-bulk-update-order')
-    private2_url = reverse('points-bulk-update-order')
+    url = reverse('points-bulk-update-order')
 
     users = [
         None,
@@ -364,21 +362,21 @@ def test_points_action_bulk_update_order(client, data):
         "bulk_points": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_points": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_points": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 
@@ -511,9 +509,7 @@ def test_user_story_status_patch(client, data):
 
 
 def test_user_story_status_action_bulk_update_order(client, data):
-    public_url = reverse('userstory-statuses-bulk-update-order')
-    private1_url = reverse('userstory-statuses-bulk-update-order')
-    private2_url = reverse('userstory-statuses-bulk-update-order')
+    url = reverse('userstory-statuses-bulk-update-order')
 
     users = [
         None,
@@ -527,21 +523,21 @@ def test_user_story_status_action_bulk_update_order(client, data):
         "bulk_userstory_statuses": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_userstory_statuses": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_userstory_statuses": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 
@@ -674,9 +670,7 @@ def test_task_status_patch(client, data):
 
 
 def test_task_status_action_bulk_update_order(client, data):
-    public_url = reverse('task-statuses-bulk-update-order')
-    private1_url = reverse('task-statuses-bulk-update-order')
-    private2_url = reverse('task-statuses-bulk-update-order')
+    url = reverse('task-statuses-bulk-update-order')
 
     users = [
         None,
@@ -690,21 +684,21 @@ def test_task_status_action_bulk_update_order(client, data):
         "bulk_task_statuses": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_task_statuses": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_task_statuses": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 
@@ -837,9 +831,7 @@ def test_issue_status_patch(client, data):
 
 
 def test_issue_status_action_bulk_update_order(client, data):
-    public_url = reverse('issue-statuses-bulk-update-order')
-    private1_url = reverse('issue-statuses-bulk-update-order')
-    private2_url = reverse('issue-statuses-bulk-update-order')
+    url = reverse('issue-statuses-bulk-update-order')
 
     users = [
         None,
@@ -853,21 +845,21 @@ def test_issue_status_action_bulk_update_order(client, data):
         "bulk_issue_statuses": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_issue_statuses": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_issue_statuses": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 
@@ -1000,9 +992,7 @@ def test_issue_type_patch(client, data):
 
 
 def test_issue_type_action_bulk_update_order(client, data):
-    public_url = reverse('issue-types-bulk-update-order')
-    private1_url = reverse('issue-types-bulk-update-order')
-    private2_url = reverse('issue-types-bulk-update-order')
+    url = reverse('issue-types-bulk-update-order')
 
     users = [
         None,
@@ -1016,21 +1006,21 @@ def test_issue_type_action_bulk_update_order(client, data):
         "bulk_issue_types": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_issue_types": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_issue_types": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 
@@ -1163,9 +1153,7 @@ def test_priority_patch(client, data):
 
 
 def test_priority_action_bulk_update_order(client, data):
-    public_url = reverse('priorities-bulk-update-order')
-    private1_url = reverse('priorities-bulk-update-order')
-    private2_url = reverse('priorities-bulk-update-order')
+    url = reverse('priorities-bulk-update-order')
 
     users = [
         None,
@@ -1179,21 +1167,21 @@ def test_priority_action_bulk_update_order(client, data):
         "bulk_priorities": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_priorities": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_priorities": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 
@@ -1326,9 +1314,7 @@ def test_severity_patch(client, data):
 
 
 def test_severity_action_bulk_update_order(client, data):
-    public_url = reverse('severities-bulk-update-order')
-    private1_url = reverse('severities-bulk-update-order')
-    private2_url = reverse('severities-bulk-update-order')
+    url = reverse('severities-bulk-update-order')
 
     users = [
         None,
@@ -1342,21 +1328,21 @@ def test_severity_action_bulk_update_order(client, data):
         "bulk_severities": [(1,2)],
         "project": data.public_project.pk
     })
-    results = helper_test_http_method(client, 'post', public_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_severities": [(1,2)],
         "project": data.private_project1.pk
     })
-    results = helper_test_http_method(client, 'post', private1_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
     post_data = json.dumps({
         "bulk_severities": [(1,2)],
         "project": data.private_project2.pk
     })
-    results = helper_test_http_method(client, 'post', private2_url, post_data, users)
+    results = helper_test_http_method(client, 'post', url, post_data, users)
     assert results == [401, 403, 403, 403, 204]
 
 

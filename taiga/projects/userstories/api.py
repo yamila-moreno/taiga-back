@@ -76,8 +76,7 @@ class UserStoryViewSet(ModelCrudViewSet, OCCResourceMixin, HistoryResourceMixin,
 
         project = get_object_or_404(Project, id=project_id)
 
-        if request.user != project.owner and not has_project_perm(request.user, project, 'add_userstory'):
-            raise exc.PermissionDenied(_("You don't have permisions to create user stories."))
+        self.check_permissions(request, 'bulk_create', project)
 
         service = services.UserStoriesService()
         user_stories = service.bulk_insert(project, request.user, bulk_stories,
@@ -104,8 +103,7 @@ class UserStoryViewSet(ModelCrudViewSet, OCCResourceMixin, HistoryResourceMixin,
 
         project = get_object_or_404(Project, id=project_id)
 
-        if request.user != project.owner and not has_project_perm(request.user, project, 'change_userstory'):
-            raise exc.PermissionDenied(_("You don't have permisions to create user stories."))
+        self.check_permissions(request, 'bulk_update_order', project)
 
         service = services.UserStoriesService()
         service.bulk_update_order(project, request.user, bulk_stories)
