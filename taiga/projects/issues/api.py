@@ -108,7 +108,7 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
     list_serializer_class = serializers.IssueSerializer
     permission_classes = (permissions.IssuePermission, )
 
-    filter_backends = (filters.IsProjectMemberFilterBackend, IssuesFilter, IssuesOrdering)
+    filter_backends = (filters.CanViewIssuesFilterBackend, IssuesFilter, IssuesOrdering)
     retrieve_exclude_filters = (IssuesFilter,)
 
     filter_fields = ("project",)
@@ -135,24 +135,20 @@ class IssueViewSet(OCCResourceMixin, HistoryResourceMixin, WatchedResourceMixin,
     def pre_conditions_on_save(self, obj):
         super().pre_conditions_on_save(obj)
 
-        if (obj.project.owner != self.request.user and
-                obj.project.memberships.filter(user=self.request.user).count() == 0):
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this issue."))
-
         if obj.milestone and obj.milestone.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this issue."))
+            raise exc.PermissionDenied(_("You don't have permissions to set this milestone to this issue."))
 
         if obj.status and obj.status.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this issue."))
+            raise exc.PermissionDenied(_("You don't have permissions to set this status to this issue."))
 
         if obj.severity and obj.severity.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this issue."))
+            raise exc.PermissionDenied(_("You don't have permissions to set this severity to this issue."))
 
         if obj.priority and obj.priority.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this issue."))
+            raise exc.PermissionDenied(_("You don't have permissions to set this priority to this issue."))
 
         if obj.type and obj.type.project != obj.project:
-            raise exc.PermissionDenied(_("You don't have permissions for add/modify this issue."))
+            raise exc.PermissionDenied(_("You don't have permissions to set this type to this issue."))
 
     @detail_route(methods=['post'], permission_classes=(IsAuthenticated,))
     def upvote(self, request, pk=None):

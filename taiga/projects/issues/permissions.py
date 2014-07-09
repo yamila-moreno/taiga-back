@@ -16,8 +16,8 @@
 
 
 from taiga.base.api.permissions import (ResourcePermission, HasProjectPerm,
-                                        IsProjectOwner, HasMandatoryParam,
-                                        PermissionComponent, HasProjectParamAndPerm)
+                                        IsProjectOwner, PermissionComponent,
+                                        AllowAny)
 
 
 class IssuePermission(ResourcePermission):
@@ -25,9 +25,9 @@ class IssuePermission(ResourcePermission):
     global_perms = None
     retrieve_perms = HasProjectPerm('view_issues')
     create_perms = HasProjectPerm('add_issue')
-    update_perms = HasProjectPerm('update_issue')
+    update_perms = HasProjectPerm('modify_issue')
     destroy_perms = HasProjectPerm('delete_issue')
-    list_perms = HasProjectParamAndPerm('view_issues')
+    list_perms = AllowAny()
 
 
 class HasIssueIdUrlParam(PermissionComponent):
@@ -43,6 +43,6 @@ class IssueVotersPermission(ResourcePermission):
     global_perms = None
     retrieve_perms = HasProjectPerm('view_issues')
     create_perms = HasProjectPerm('add_issue')
-    update_perms = HasProjectPerm('update_issue')
+    update_perms = HasProjectPerm('modify_issue')
     destroy_perms = HasProjectPerm('delete_issue')
-    list_perms = HasIssueIdUrlParam() & HasProjectPerm('view_issues')
+    list_perms = AllowAny()

@@ -12,6 +12,7 @@ ANON_PERMISSIONS = [
 USER_PERMISSIONS = [
     ('view_project', _('View project')),
     ('view_us', _('View user stories')),
+    ('view_issues', _('View issues')),
     ('request_membership', _('Request membership')),
     ('add_us_to_project', _('Add user story to project')),
     ('add_comments_to_us', _('Add comments to user stories')),
@@ -43,7 +44,7 @@ MEMBERS_PERMISSIONS = [
     ('modify_task', _('Modify task')),
     ('delete_task', _('Delete task')),
     # Issue permissions
-    ('view_issue', _('View issue')),
+    ('view_issues', _('View issues')),
     ('add_issue', _('Add issue')),
     ('modify_issue', _('Modify issue')),
     ('delete_issue', _('Delete issue')),
